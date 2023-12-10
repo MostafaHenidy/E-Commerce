@@ -14,7 +14,12 @@ return new class extends Migration
     public function up()
     {
         Schema::create('reviews', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
+            $table->Integer('product_id')->unsigned()->index();
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->string('customer');
+            $table->text('review');
+            $table->integer('star')->default(0);
             $table->timestamps();
         });
     }
