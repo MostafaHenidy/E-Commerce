@@ -4,7 +4,7 @@
     <div class="container-xxl flex-grow-1 container-p-y">
         <h4 class="fw-bold py-3 mb-4">Your Cart</h4>
 
-        @if (count($products) > 0)
+        @if ($cart->count() > 0)
             <div class="table-responsive text-nowrap">
                 <table class="table">
                     <thead>
@@ -18,18 +18,18 @@
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
-                        @foreach ($products as $product)
+                        @foreach ($cart as $item)
                             <tr>
-                                <td>{{ $product->name }}</td>
-                                <td>{{ $product->description }}</td>
-                                <td>{{ $product->price }}</td>
-                                <td>{{ $product->quantity }}</td>
-                                <td>{{ $product->price * $product->quantity }}</td>
+                                <td>{{ $item->name }}</td>
+                                <td>{{ $item->options->description }}</td>
+                                <td>{{ $item->price }}</td>
+                                <td>{{ $item->qty }}</td>
+                                <td>{{ $item->price * $item->qty }}</td>
                                 <td>
-                                    <form action="{{ route('user.cart.remove', $product->id) }}" method="POST">
+                                    <form action="{{ route('user.cart.remove', $item->rowId) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger"><i class=" bx bx-trash"></i></button>
+                                        <button type="submit" class="btn btn-danger"><i class="bx bx-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

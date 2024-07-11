@@ -266,4 +266,5 @@
                 </div>
             @endforeach
         </div>
-    @endsection
+    </div>
+@endsection

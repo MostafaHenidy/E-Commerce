@@ -74,10 +74,11 @@ Route::middleware('vendor')->prefix('vendor')->group(function () {
 Route::middleware('auth')->prefix('user')->group(function () {
     Route::get('/products', [UserController::class, 'indexProducts'])->name('user.products.index');
     Route::get('/products/{id}', [UserController::class, 'showProduct'])->name('user.products.show');
-    Route::post('/cart/add', [UserController::class, 'addToCart'])->name('user.cart.add');
+    Route::post('/products', [UserController::class, 'addToCart'])->name('user.cart.add');
+    Route::delete('/cart/remove/{rowId}', [UserController::class, 'removeFromCart'])->name('user.cart.remove');
     Route::get('/orders/create', [UserController::class, 'createOrder'])->name('user.orders.create');
     Route::post('/orders', [UserController::class, 'storeOrder'])->name('user.orders.store');
     Route::get('/orders', [UserController::class, 'indexOrders'])->name('user.orders.index');
+    Route::get('/orders/show/{id}',[UserController::class,'viewOrder'])->name('user.orders.show');
     Route::post('/reviews', [UserController::class, 'storeReview'])->name('user.reviews.store');
-    Route::delete('/cart/remove/{id}', [UserController::class, 'removeFromCart'])->name('user.cart.remove');
 });

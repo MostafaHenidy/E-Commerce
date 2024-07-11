@@ -15,6 +15,7 @@ class Products extends Model
         'stock',
         'vendor_id',
         'category_id',
+        'image',
     ];
     public function Vendor(){
         return $this->belongsTo(Vendor::class,'vendor_id');
