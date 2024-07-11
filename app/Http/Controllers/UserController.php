@@ -8,9 +8,11 @@ use App\Models\Products;
 use App\Models\Review;
 use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    // ------------------------------------------------------------Product Management
     public function indexProducts()
     {
         $products = Products::all();
@@ -20,8 +22,10 @@ class UserController extends Controller
     public function showProduct($id)
     {
         $product = Products::find($id);
-        return view('user.products.show', compact('product'));
+        $reviews = Review::where('product_id', $id)->with('user')->get();
+        return view('user.products.show', compact('product', 'reviews'));
     }
+    // ------------------------------------------------------------Order Management
     public function createOrder()
     {
         $cart = Cart::content();
@@ -73,13 +77,35 @@ class UserController extends Controller
         $order = Order::with('orderItems.products')->findOrFail($id);  // Eager load order items
         return view('user.orders.show', compact('order'));
     }
+    // ------------------------------------------------------------Review Management
     public function storeReview(Request $request)
     {
-        $review = new Review($request->all());
+        $review = new Review();
+        $review->product_id = $request->input('product_id');
+        $review->comment = $request->input('comment');
+        $review->rating = $request->input('rating');
         $review->user_id = auth()->user()->id;
         $review->save();
         return redirect()->back()->with('success', 'Review submitted successfully');
     }
+    public function updateReview(Request $request)
+    {
+        // Find the review associated with the user
+        $review = Review::where('user_id', Auth::user()->id)->first();
+
+        // Update the review
+        $review->comment = $request->input('comment');
+        $review->rating = $request->input('rating');
+        $review->update();
+
+        return redirect()->back()->with('success', 'Review updated successfully');
+    }
+    public function deleteReview(){
+        $review = Review::where('user_id', Auth::user()->id)->first();
+        $review->delete();
+        return redirect()->back()->with('success','Review deleted successfully');
+    }
+    // ------------------------------------------------------------ Cart Management
     public function addToCart(Request $request)
     {
         $product = Products::findOrFail($request->input('product_id'));

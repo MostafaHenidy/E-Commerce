@@ -67,7 +67,7 @@
                 <!-- Products -->
                 <li class="menu-item">
                     <a href="{{route('vendor.products.index')}}" class="menu-link">
-                        <i class="menu-icon tf-icons bx bx-layout"></i>
+                        <i class="menu-icon tf-icons bx bx-package"></i>
                         <div data-i18n="Products">Products</div>
                     </a>
                 </li>

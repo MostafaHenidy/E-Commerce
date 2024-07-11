@@ -71,14 +71,23 @@ Route::middleware('vendor')->prefix('vendor')->group(function () {
     Route::delete('/products/{id}', [VendorController::class, 'deleteProduct'])->name('vendor.products.delete');
     Route::get('/orders', [VendorController::class, 'indexOrders'])->name('vendor.orders.index');
 });
+
+//  -------------------------------User Module
 Route::middleware('auth')->prefix('user')->group(function () {
+    // ----------------------------------Product Management
     Route::get('/products', [UserController::class, 'indexProducts'])->name('user.products.index');
     Route::get('/products/{id}', [UserController::class, 'showProduct'])->name('user.products.show');
+    // ----------------------------------Cart Management 
     Route::post('/products', [UserController::class, 'addToCart'])->name('user.cart.add');
     Route::delete('/cart/remove/{rowId}', [UserController::class, 'removeFromCart'])->name('user.cart.remove');
+    // ----------------------------------Order Management 
     Route::get('/orders/create', [UserController::class, 'createOrder'])->name('user.orders.create');
     Route::post('/orders', [UserController::class, 'storeOrder'])->name('user.orders.store');
     Route::get('/orders', [UserController::class, 'indexOrders'])->name('user.orders.index');
     Route::get('/orders/show/{id}',[UserController::class,'viewOrder'])->name('user.orders.show');
+    // ----------------------------------Review Management 
     Route::post('/reviews', [UserController::class, 'storeReview'])->name('user.reviews.store');
+    Route::patch('/reviews', [UserController::class, 'updateReview'])->name('user.reviews.update');
+    Route::delete('/reviews', [UserController::class, 'deleteReview'])->name('user.reviews.delete');
+    
 });

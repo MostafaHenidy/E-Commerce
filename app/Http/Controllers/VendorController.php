@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Products;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class VendorController extends Controller
 {
@@ -35,10 +37,10 @@ class VendorController extends Controller
         Products::find($id)->delete();
         return redirect()->back()->with('success', 'Product deleted successfully');
     }
-    public function indexOrders(){
-        $orders = Order::whereHas('items',function($query){
-            $query->where('vendor_id',auth('vendor')->user()->id);
-        })->get();
-        return view('vendor.orders.index',compact('orders'));
-    }
+    // public function indexOrders(){
+    //     $products = Products::where('vendor_id',Auth::user()->id)->get();
+    //     $orderItems = OrderItem::where('product_id',$products->id);
+    //     $order = Order::where
+    //     return view('vendor.orders.index',compact('orders'));
+    // }
 }
