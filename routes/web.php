@@ -63,13 +63,18 @@ Route::middleware('admin')->prefix('admin')->group(function () {
     Route::post('/categories', [AdminController::class, 'storeCategories'])->name('admin.categories.store');
     Route::delete('/categories/{id}', [AdminController::class, 'deleteCategories'])->name('admin.categories.delete');
 });
+//  -------------------------------Vendor Module
 Route::middleware('vendor')->prefix('vendor')->group(function () {
+    // -------------------------------Product Management
     Route::get('/products', [VendorController::class, 'indexProducts'])->name('vendor.products.index');
     Route::get('/products/create', [VendorController::class, 'createProduct'])->name('vendor.products.create');
     Route::post('/products', [VendorController::class, 'storeProduct'])->name('vendor.products.store');
     Route::patch('/products/{id}', [VendorController::class, 'updateProduct'])->name('vendor.products.update');
     Route::delete('/products/{id}', [VendorController::class, 'deleteProduct'])->name('vendor.products.delete');
+    // -------------------------------Order Management
     Route::get('/orders', [VendorController::class, 'indexOrders'])->name('vendor.orders.index');
+    Route::get('/orders/show/{id}',[VendorController::class,'viewOrder'])->name('vendor.orders.show');
+    Route::patch('/orders/show/{id}',[VendorController::class,'updateOrder'])->name('vendor.orders.update');
 });
 
 //  -------------------------------User Module
@@ -85,6 +90,7 @@ Route::middleware('auth')->prefix('user')->group(function () {
     Route::post('/orders', [UserController::class, 'storeOrder'])->name('user.orders.store');
     Route::get('/orders', [UserController::class, 'indexOrders'])->name('user.orders.index');
     Route::get('/orders/show/{id}',[UserController::class,'viewOrder'])->name('user.orders.show');
+    Route::patch('/orders/show/{id}',[VendorController::class,'updateOrder'])->name('user.orders.update');
     // ----------------------------------Review Management 
     Route::post('/reviews', [UserController::class, 'storeReview'])->name('user.reviews.store');
     Route::patch('/reviews', [UserController::class, 'updateReview'])->name('user.reviews.update');

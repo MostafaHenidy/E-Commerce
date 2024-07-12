@@ -1,4 +1,4 @@
-@extends('user.master')
+@extends('vendor.master')
 @section('title', 'Order Details')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
@@ -41,20 +41,18 @@
                             @endif
                         </tbody>
                     </table>
-                    <form action="{{ route('user.orders.update', $order->id) }}" method="POST">
+                    <form action="{{ route('vendor.orders.update', $order->id) }}" method="POST">
                         @csrf
                         @method('PATCH')
                         <div class="mb-3">
                             <label for="status" class="form-label">Update Status</label>
                             <select class="form-select" id="status" name="status">
-                                @if ($order->status == 'pending')
-                                    <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>
-                                        Cancelled
-                                    </option>
-                                @else
-                                    <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending
-                                    </option>
-                                @endif
+                                <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending
+                                </option>
+                                <option value="success" {{ $order->status == 'success' ? 'selected' : '' }}>Success
+                                </option>
+                                <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled
+                                </option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Update Order Status</button>

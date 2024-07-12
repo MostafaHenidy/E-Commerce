@@ -36,9 +36,9 @@
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                                 <button type="submit" class="btn btn-primary"
-                                    @if ($product->stock == 0) disabled @endif>
+                                    @if ($product->stock <= 0) disabled @endif>
                                     <i class="bx bx-cart pb-1"></i>
-                                    @if ($product->stock == 0)
+                                    @if ($product->stock <= 0)
                                         Out of Stock
                                     @else
                                         Add to cart

@@ -15,7 +15,7 @@
                             <div class="card-body">
                                 <h5 class="card-title">Total Price: {{ $order->total_amount }}$</h5>
                                 <p class="card-text">Status: <span
-                                        class="badge bg-{{ $order->status === 'pending' ? 'warning' : 'success' }}">{{ $order->status }}</span>
+                                        class="badge bg-{{ $order->status === 'pending' ? 'warning' : ($order->status === 'success' ? 'success' : 'danger') }}">{{ $order->status }}</span>
                                 </p>
                                 <a href="{{ route('user.orders.show', $order->id) }}"
                                     onclick="this.closest('form').submit();return false;" class="btn btn-primary">More

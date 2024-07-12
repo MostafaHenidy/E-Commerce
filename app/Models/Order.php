@@ -12,7 +12,7 @@ class Order extends Model
         'total_amount',
         'status',
     ];
-    public function User(){
+    public function user(){
         return $this->belongsTo(User::class);
     }
     public function orderItems(){

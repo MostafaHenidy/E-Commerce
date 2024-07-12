@@ -74,9 +74,51 @@ class UserController extends Controller
     }
     public function viewOrder($id)
     {
-        $order = Order::with('orderItems.products')->findOrFail($id);  // Eager load order items
+        $order = Order::with('orderItems.product')->findOrFail($id);  // Eager load order items
         return view('user.orders.show', compact('order'));
     }
+    public function updateOrder(Request $request, $id)
+    {
+        $order = Order::with('orderItems.product')->findOrFail($id);
+        $newStatus = $request->status;
+        $currentStatus = $order->status;
+
+        // Check if the new status is different from the current status
+        if ($newStatus !== $currentStatus) {
+            // If the status is being updated to 'cancelled' and it was not previously 'cancelled', add the stock back
+            if ($newStatus === 'cancelled' && $currentStatus !== 'cancelled') {
+                foreach ($order->orderItems as $orderItem) {
+                    $product = $orderItem->product;
+                    if ($product) {
+                        $product->stock += $orderItem->quantity;
+                        $product->save();
+                    }
+                }
+            }
+
+            // If the status is being updated to 'pending' from 'cancelled', deduct the stock again
+            else {
+                foreach ($order->orderItems as $orderItem) {
+                    $product = $orderItem->product;
+                    if ($product && $product->stock >= $orderItem->quantity) {
+                        $product->stock -= $orderItem->quantity;
+                        $product->save();
+                    } else {
+                        return redirect()->back()->with('error', 'Not enough stock available to change order status to pending');
+                    }
+                }
+            }
+
+            // Update the order status
+            $order->status = $newStatus;
+            $order->save();
+
+            return redirect()->back()->with('success', 'Order Status updated successfully');
+        }
+
+        return redirect()->back()->with('info', 'Order status remains unchanged');
+    }
+
     // ------------------------------------------------------------Review Management
     public function storeReview(Request $request)
     {
@@ -100,18 +142,18 @@ class UserController extends Controller
 
         return redirect()->back()->with('success', 'Review updated successfully');
     }
-    public function deleteReview(){
+    public function deleteReview()
+    {
         $review = Review::where('user_id', Auth::user()->id)->first();
         $review->delete();
-        return redirect()->back()->with('success','Review deleted successfully');
+        return redirect()->back()->with('success', 'Review deleted successfully');
     }
     // ------------------------------------------------------------ Cart Management
     public function addToCart(Request $request)
     {
         $product = Products::findOrFail($request->input('product_id'));
+
         if ($product->stock > 0) {
-            $product->stock -= 1;
-            $product->save();
             Cart::add($product->id, $product->name, 1, $product->price, ['description' => $product->description]);
             return redirect()->back()->with('success', 'Product added to cart');
         } else {

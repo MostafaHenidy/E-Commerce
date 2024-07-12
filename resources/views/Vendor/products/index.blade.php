@@ -37,7 +37,13 @@
                                     <td>{{ $product->description }}</td>
                                     <td>{{ $product->price }}</td>
                                     <td>{{ $product->category_id }}</td>
-                                    <td>{{ $product->stock }}</td>
+                                    <td>
+                                        @if ($product->stock <= 0)
+                                            <span class="badge bg-danger">Out of stock</span>
+                                        @else
+                                            {{ $product->stock }}
+                                        @endif
+                                    </td>
                                     <td>
                                         <div class="dropdown">
                                             <button type="button" class="btn p-0 dropdown-toggle hide-arrow"
@@ -82,7 +88,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form action="{{ route('vendor.products.store') }}" method="POST">
+                            <form action="{{ route('vendor.products.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <div class="row mb-3">
                                     <label for="nameExLarge" class="col-sm-2 col-form-label">Name</label>
@@ -124,7 +130,6 @@
                                     </div>
                                 </div>
                                 <div class="row mb-3">
-
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col mb-0">
@@ -154,6 +159,11 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="row mb-3">
+                                    <div class="input-group">
+                                        <input type="file" class="form-control" id="image" name="image" />
+                                    </div>
+                                </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-outline-secondary"
                                         data-bs-dismiss="modal">Close</button>
@@ -178,7 +188,7 @@
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form action="{{ route('vendor.products.update', $product->id) }}" method="POST">
+                                <form action="{{ route('vendor.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     @method('PATCH')
                                     <div class="row mb-3">
@@ -252,6 +262,11 @@
                                                     </span>
                                                 @enderror
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="input-group">
+                                            <input type="file" class="form-control" id="image" name="image" />
                                         </div>
                                     </div>
                                     <div class="modal-footer">

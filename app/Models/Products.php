@@ -17,13 +17,16 @@ class Products extends Model
         'category_id',
         'image',
     ];
-    public function Vendor(){
+    public function vendor(){
         return $this->belongsTo(Vendor::class,'vendor_id');
     }
-    public function Categories(){
+    public function category(){
         return $this->belongsTo(Categories::class);
     }
     public function review(){
         return $this->hasMany(Review::class);
+    }
+    public function orderItem(){
+        return $this->hasmany(OrderItem::class);
     }
 }

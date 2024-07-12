@@ -46,7 +46,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-    public function Products(){
+    public function product(){
         return $this->hasMany(Products::class,'vendor_id');
     }
 }
