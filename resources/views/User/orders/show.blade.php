@@ -20,7 +20,7 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Product Code</th>
+                                <th>Product Name</th>
                                 <th>Price</th>
                                 <th>Quantity</th>
                                 <th>Total</th>
@@ -36,6 +36,7 @@
                                         <td>${{ $item->price }}</td>
                                         <td>{{ $item->quantity }}</td>
                                         <td>${{ $item->price * $item->quantity }}</td>
+                                        
                                     </tr>
                                 @endforeach
                             @endif

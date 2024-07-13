@@ -72,6 +72,12 @@
                     </a>
                 </li>
                 <li class="menu-item">
+                    <a href="{{route('admin.vendors.index')}}" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-user"></i>
+                        <div data-i18n="Users">Vendors</div>
+                    </a>
+                </li>
+                <li class="menu-item">
                     <a href="{{route('admin.products.index')}}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-package"></i>
                         <div data-i18n="Products">Products</div>
@@ -81,6 +87,12 @@
                     <a href="{{route('admin.categories.index')}}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-category"></i>
                         <div data-i18n="Categories">Categories</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="{{route('admin.orders.index')}}" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-file"></i>
+                        <div data-i18n="Categories">Orders</div>
                     </a>
                 </li>
             </ul>

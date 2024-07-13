@@ -22,6 +22,7 @@
                                 <th>Name</th>
                                 <th>Description</th>
                                 <th>Price</th>
+                                <th>Category name</th>
                                 <th>Category ID</th>
                                 <th>Stock</th>
                                 <th>Action</th>
@@ -36,6 +37,7 @@
                                     <td>{{ $product->name }}</td>
                                     <td>{{ $product->description }}</td>
                                     <td>{{ $product->price }}</td>
+                                    <td>{{ $product->category->name }}</td>
                                     <td>{{ $product->category_id }}</td>
                                     <td>
                                         @if ($product->stock <= 0)
@@ -46,30 +48,38 @@
                                     </td>
                                     <td>
                                         <div class="dropdown">
-                                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow"
-                                                data-bs-toggle="dropdown">
-                                                <i class="bx bx-dots-vertical-rounded"></i>
-                                            </button>
-                                            <div class="dropdown-menu">
-                                                <form class="dropdown-item"
-                                                    action="{{ route('vendor.products.update', $product->id) }}"
-                                                    method="POST">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="button" class="btn btn-success update-product-btn"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#updateProductModal{{ $product->id }}">
-                                                        <i class="bx bx-recycle"></i>
-                                                    </button>
-                                                </form>
-                                                <form class="dropdown-item"
-                                                    action="{{ route('vendor.products.delete', $product->id) }}"
-                                                    method="POST">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger"><i
-                                                            class=" bx bx-trash"></i></button>
-                                                </form>
+
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-primary dropdown-toggle"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <form class="dropdown-item"
+                                                            action="{{ route('vendor.products.update', $product->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <button type="button"
+                                                                class="btn btn-success update-product-btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#updateProductModal{{ $product->id }}">
+                                                                <i class="bx bx-recycle"></i>
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li>
+                                                        <form class="dropdown-item"
+                                                            action="{{ route('vendor.products.delete', $product->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-danger"><i
+                                                                    class=" bx bx-trash"></i></button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
                                             </div>
                                         </div>
                                     </td>
@@ -88,7 +98,8 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form action="{{ route('vendor.products.store') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('vendor.products.store') }}" method="POST"
+                                enctype="multipart/form-data">
                                 @csrf
                                 <div class="row mb-3">
                                     <label for="nameExLarge" class="col-sm-2 col-form-label">Name</label>
@@ -104,11 +115,11 @@
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col mb-0">
-                                        <label for="nameExLarge" class="col-sm-2 col-form-label">Description</label>
+                                        <label for="descriptionExLarge" class="col-sm-2 col-form-label">Description</label>
                                         <div class="col-sm-10">
                                             <input type="text"
                                                 class="form-control @error('description') is-invalid @enderror"
-                                                id="nameExLarge" name="description" placeholder="Enter description">
+                                                id="descriptionExLarge" name="description" placeholder="Enter description">
                                             @error('description')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -117,10 +128,10 @@
                                         </div>
                                     </div>
                                     <div class="col mb-0">
-                                        <label for="nameExLarge" class="col-sm-2 col-form-label">Price</label>
+                                        <label for="priceExLarge" class="col-sm-2 col-form-label">Price</label>
                                         <div class="col-sm-10">
                                             <input type="text" class="form-control @error('price') is-invalid @enderror"
-                                                id="nameExLarge" name="price" placeholder="Enter price">
+                                                id="priceExLarge" name="price" placeholder="Enter price">
                                             @error('price')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -133,11 +144,13 @@
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col mb-0">
-                                        <label for="nameExLarge" class="col-sm-2 col-form-label">Category ID</label>
+                                        <label for="categoryExLarge" class="col-sm-2 col-form-label">Category</label>
                                         <div class="col-sm-10">
-                                            <input type="text"
-                                                class="form-control @error('category_id') is-invalid @enderror"
-                                                id="nameExLarge" name="category_id" placeholder="Enter category id">
+                                            <select class="form-select" id="categoryExLarge" name="category_id">
+                                                @foreach ($categories as $category)
+                                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                                @endforeach
+                                            </select>
                                             @error('category_id')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -146,11 +159,11 @@
                                         </div>
                                     </div>
                                     <div class="col mb-0">
-                                        <label for="nameExLarge" class="col-sm-2 col-form-label">Stock</label>
+                                        <label for="stockExLarge" class="col-sm-2 col-form-label">Stock</label>
                                         <div class="col-sm-10">
                                             <input type="text"
-                                                class="form-control @error('stock') is-invalid @enderror" id="nameExLarge"
-                                                name="stock" placeholder="Enter stock">
+                                                class="form-control @error('stock') is-invalid @enderror"
+                                                id="stockExLarge" name="stock" placeholder="Enter stock">
                                             @error('stock')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -164,6 +177,46 @@
                                         <input type="file" class="form-control" id="image" name="image" />
                                     </div>
                                 </div>
+                                <div class="row mb-3">
+                                    <div class="col mb-0">
+                                        <label for="sizesExLarge" class="col-sm-2 col-form-label">Sizes</label>
+                                        <div class="col-sm-10">
+                                            @foreach (['XS', 'S', 'M', 'L', 'XL', 'XXL'] as $size)
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="sizes[]"
+                                                        value="{{ $size }}" id="size_{{ $size }}">
+                                                    <label class="form-check-label" for="size_{{ $size }}">
+                                                        {{ $size }}
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                            @error('sizes')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col mb-0">
+                                        <label for="colorsExLarge" class="col-sm-2 col-form-label">Colors</label>
+                                        <div class="col-sm-10">
+                                            @foreach (['Red', 'Green', 'Blue', 'Black', 'White', 'Yellow'] as $color)
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="colors[]"
+                                                        value="{{ $color }}" id="color_{{ $color }}">
+                                                    <label class="form-check-label" for="color_{{ $color }}">
+                                                        {{ $color }}
+                                                    </label>
+                                                </div>
+                                            @endforeach
+                                            @error('colors')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-outline-secondary"
                                         data-bs-dismiss="modal">Close</button>
@@ -174,8 +227,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal fade" id="exLargeModal" tabindex="-1" aria-hidden="true">
-            </div>
+            
 
             @foreach ($products as $product)
                 <div class="modal fade" id="updateProductModal{{ $product->id }}" tabindex="-1" aria-hidden="true">
@@ -188,15 +240,16 @@
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form action="{{ route('vendor.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
+                                <form action="{{ route('vendor.products.update', $product->id) }}" method="POST"
+                                    enctype="multipart/form-data">
                                     @csrf
-                                    @method('PATCH')
+                                    @method('PUT')
                                     <div class="row mb-3">
                                         <label for="nameExLarge" class="col-sm-2 col-form-label">Name</label>
                                         <div class="col-sm-10">
                                             <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                                id="nameExLarge" name="name"
-                                                value="{{ old('name', $product->name) }}">
+                                                id="nameExLarge" value="{{ $product->name }}" name="name"
+                                                placeholder="Enter product Name">
                                             @error('name')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -206,12 +259,13 @@
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col mb-0">
-                                            <label for="nameExLarge" class="col-sm-2 col-form-label">Description</label>
+                                            <label for="descriptionExLarge"
+                                                class="col-sm-2 col-form-label">Description</label>
                                             <div class="col-sm-10">
                                                 <input type="text"
                                                     class="form-control @error('description') is-invalid @enderror"
-                                                    id="nameExLarge" name="description"
-                                                    value="{{ old('description', $product->description) }}">
+                                                    id="descriptionExLarge" name="description"
+                                                    value="{{ $product->description }}" placeholder="Enter description">
                                                 @error('description')
                                                     <span class="invalid-feedback" role="alert">
                                                         <strong>{{ $message }}</strong>
@@ -220,12 +274,12 @@
                                             </div>
                                         </div>
                                         <div class="col mb-0">
-                                            <label for="nameExLarge" class="col-sm-2 col-form-label">Price</label>
+                                            <label for="priceExLarge" class="col-sm-2 col-form-label">Price</label>
                                             <div class="col-sm-10">
                                                 <input type="text"
                                                     class="form-control @error('price') is-invalid @enderror"
-                                                    id="nameExLarge" value="{{ old('name', $product->price) }}"
-                                                    name="price" placeholder="Enter price">
+                                                    value="{{ $product->price }}" id="priceExLarge" name="price"
+                                                    placeholder="Enter price">
                                                 @error('price')
                                                     <span class="invalid-feedback" role="alert">
                                                         <strong>{{ $message }}</strong>
@@ -235,13 +289,17 @@
                                         </div>
                                     </div>
                                     <div class="row mb-3">
+                                    </div>
+                                    <div class="row mb-3">
                                         <div class="col mb-0">
-                                            <label for="nameExLarge" class="col-sm-2 col-form-label">Category ID</label>
+                                            <label for="categoryExLarge" class="col-sm-2 col-form-label">Category</label>
                                             <div class="col-sm-10">
-                                                <input type="text"
-                                                    class="form-control @error('category_id') is-invalid @enderror"
-                                                    id="nameExLarge" value="{{ old('name', $product->category_id) }}"
-                                                    name="category_id" placeholder="Enter category id">
+                                                <select class="form-select" id="categoryExLarge" name="category_id">
+                                                    @foreach ($categories as $category)
+                                                        <option value="{{ $category->id }}">{{ $category->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                                 @error('category_id')
                                                     <span class="invalid-feedback" role="alert">
                                                         <strong>{{ $message }}</strong>
@@ -250,12 +308,12 @@
                                             </div>
                                         </div>
                                         <div class="col mb-0">
-                                            <label for="nameExLarge" class="col-sm-2 col-form-label">Stock</label>
+                                            <label for="stockExLarge" class="col-sm-2 col-form-label">Stock</label>
                                             <div class="col-sm-10">
                                                 <input type="text"
                                                     class="form-control @error('stock') is-invalid @enderror"
-                                                    id="nameExLarge" value="{{ old('name', $product->stock) }}"
-                                                    name="stock" placeholder="Enter stock">
+                                                    value="{{ $product->stock }}" id="stockExLarge" name="stock"
+                                                    placeholder="Enter stock">
                                                 @error('stock')
                                                     <span class="invalid-feedback" role="alert">
                                                         <strong>{{ $message }}</strong>
@@ -267,6 +325,46 @@
                                     <div class="row mb-3">
                                         <div class="input-group">
                                             <input type="file" class="form-control" id="image" name="image" />
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col mb-0">
+                                            <label for="sizesExLarge" class="col-sm-2 col-form-label">Sizes</label>
+                                            <div class="col-sm-10">
+                                                @foreach (['XS', 'S', 'M', 'L', 'XL', 'XXL'] as $size)
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="sizes[]"
+                                                            value="{{ $size }}" id="size_{{ $size }}">
+                                                        <label class="form-check-label" for="size_{{ $size }}">
+                                                            {{ $size }}
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+                                                @error('sizes')
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="col mb-0">
+                                            <label for="colorsExLarge" class="col-sm-2 col-form-label">Colors</label>
+                                            <div class="col-sm-10">
+                                                @foreach (['Red', 'Green', 'Blue', 'Black', 'White', 'Yellow'] as $color)
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="colors[]"
+                                                            value="{{ $color }}" id="color_{{ $color }}">
+                                                        <label class="form-check-label" for="color_{{ $color }}">
+                                                            {{ $color }}
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+                                                @error('colors')
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
+                                                @enderror
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer">

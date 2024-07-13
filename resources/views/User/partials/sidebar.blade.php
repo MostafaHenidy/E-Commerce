@@ -77,7 +77,6 @@
                         <div data-i18n="Orders">Orders</div>
                     </a>
                 </li>
-            </ul>
         </aside>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -103,10 +102,10 @@
                     document.getElementById('dashboard').classList.add('active');
                     document.getElementById('orders').classList.remove('active');
                 }
-                } else if (currentPath.includes('orders')) {
-                    document.getElementById('products').classList.remove('active');
-                    document.getElementById('dashboard').classList.remove('active');
-                    document.getElementById('orders').classList.add('active');
-                }
+            } else if (currentPath.includes('orders')) {
+                document.getElementById('products').classList.remove('active');
+                document.getElementById('dashboard').classList.remove('active');
+                document.getElementById('orders').classList.add('active');
+            }
             });
         </script>

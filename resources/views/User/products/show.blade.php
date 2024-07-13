@@ -13,7 +13,8 @@
                 <div class="wrapper row">
                     <div class="preview col-md-6">
                         <div class="preview-pic tab-content">
-                            <div class="tab-pane active" id="pic-1"><img alt="no image" src="{{ $product->image }}" />
+                            <div class="tab-pane active" id="pic-1"><img alt="no image"
+                                    style="max-width: 300px; max-height: 300px;" src="{{ $product->image }}" />
                             </div>
                         </div>
                     </div>
@@ -21,16 +22,17 @@
                         <h3 class="product-title">{{ $product->name }}</h3>
                         <div class="rating">
                             <div class="stars">
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star checked"></span>
-                                <span class="fa fa-star"></span>
-                                <span class="fa fa-star"></span>
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <span class="fa fa-star @if ($i <= round($averageRating)) checked @endif"></span>
+                                @endfor
                             </div>
                             <span class="review-no">{{ $reviews->count() }} reviews</span>
                         </div>
                         <p class="product-description mt-2 text-wrap">{{ $product->description }}</p>
                         <h4 class="price">current price: <span>{{ $product->price }}$</span></h4>
+                        <h6 class="sizes">Avaliable sizes: <span>{{ $product->sizes }}</span></h6>
+                        <h6 class="colors">Avaliable colours: <span>{{ $product->colors }}</span></h6>
+                        <h6 class="vendor_id">Vendor: <span>{{ $product->vendor->name }}</span></h6>
                         <div class="action">
                             <form class="card-link" action="{{ route('user.cart.add') }}" method="POST">
                                 @csrf
@@ -153,9 +155,9 @@
         cursor: pointer;
     }
 
-    .rating-stars input[type="radio"]:checked~label,
     .rating-stars label:hover,
-    .rating-stars label:hover~label {
+    .rating-stars label:hover~label,
+    .rating-stars input[type="radio"]:checked~label {
         color: #f5c518;
     }
 
@@ -163,3 +165,39 @@
         color: #f5c518;
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const stars = document.querySelectorAll('.rating-stars label');
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                // Clear previous checked state
+                stars.forEach(s => s.classList.remove('checked'));
+                this.classList.add('checked');
+                let prev = this.previousElementSibling;
+                while (prev) {
+                    prev.classList.add('checked');
+                    prev = prev.previousElementSibling;
+                }
+            });
+
+            star.addEventListener('mouseover', function() {
+                stars.forEach(s => s.style.color = '#ccc');
+                this.style.color = '#f5c518';
+                let prev = this.previousElementSibling;
+                while (prev) {
+                    prev.style.color = '#f5c518';
+                    prev = prev.previousElementSibling;
+                }
+            });
+        });
+
+        document.querySelector('.rating-stars').addEventListener('mouseleave', function() {
+            stars.forEach(star => {
+                if (!star.classList.contains('checked')) {
+                    star.style.color = '#ccc';
+                }
+            });
+        });
+    });
+</script>

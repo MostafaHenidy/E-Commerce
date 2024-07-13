@@ -2,13 +2,10 @@
 
 use App\Http\Controllers\vendorAuth\AuthenticatedSessionController;
 use App\Http\Controllers\vendorAuth\ConfirmablePasswordController;
-use App\Http\Controllers\vendorAuth\EmailVerificationNotificationController;
-use App\Http\Controllers\vendorAuth\EmailVerificationPromptController;
 use App\Http\Controllers\vendorAuth\NewPasswordController;
 use App\Http\Controllers\vendorAuth\PasswordController;
 use App\Http\Controllers\vendorAuth\PasswordResetLinkController;
 use App\Http\Controllers\vendorAuth\RegisteredUserController;
-use App\Http\Controllers\vendorAuth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest:vendor')->group(function () {
@@ -36,6 +33,12 @@ Route::middleware('guest:vendor')->group(function () {
 });
 
 Route::middleware('vendor')->group(function () {
+    Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
+        ->name('password.confirm');
+
+    Route::post('confirm-password', [ConfirmablePasswordController::class, 'store']);
+
+    Route::put('password', [PasswordController::class, 'update'])->name('password.update');
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });

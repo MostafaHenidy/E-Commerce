@@ -73,7 +73,7 @@
                 </li>
                 <li class="menu-item">
                     <a href="{{route('vendor.orders.index')}}" class="menu-link">
-                        <i class="menu-icon tf-icons bx bx-cart"></i>
+                        <i class="menu-icon tf-icons bx bx-file"></i>
                         <div data-i18n="orders">Orders</div>
                     </a>
                 </li>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Categories;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Products;
@@ -13,17 +14,34 @@ use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
     // ------------------------------------------------------------Product Management
-    public function indexProducts()
+    public function indexProducts(Request $request)
     {
-        $products = Products::all();
+        $query = Products::query();
+
+        if ($request->has('category_id') && $request->category_id != '') {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->has('min_price') && $request->min_price != '') {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->has('max_price') && $request->max_price != '') {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        $products = $query->with('vendor')->get();
+        $categories = Categories::all();
         $cart = Cart::content();
-        return view('user.products.index', compact('products', 'cart'));
+
+        return view('user.products.index', compact('products', 'cart', 'categories'));
     }
     public function showProduct($id)
     {
         $product = Products::find($id);
         $reviews = Review::where('product_id', $id)->with('user')->get();
-        return view('user.products.show', compact('product', 'reviews'));
+        $averageRating = $reviews->avg('rating');
+        return view('user.products.show', compact('product', 'reviews', 'averageRating'));
     }
     // ------------------------------------------------------------Order Management
     public function createOrder()
@@ -177,4 +195,29 @@ class UserController extends Controller
 
         return redirect()->back()->with('error', 'Product not found in cart');
     }
+
+    // public function filter(Request $request)
+    // {
+
+    //     $query = Products::query();
+
+    //     if ($request->has('name') && $request->name != '') {
+    //         $query->where('name', 'like', '%' . $request->name . '%');
+    //     }
+
+    //     if ($request->has('category_id') && $request->category_id != '') {
+    //         $query->where('category_id', $request->category_id);
+    //     }
+
+    //     if ($request->has('min_price') && $request->min_price != '') {
+    //         $query->where('price', '>=', $request->min_price);
+    //     }
+
+    //     if ($request->has('max_price') && $request->max_price != '') {
+    //         $query->where('price', '<=', $request->max_price);
+    //     }
+
+    //     $products = $query->with('category')->get();
+    //     return view('user.products.index', compact('products'));
+    // }
 }

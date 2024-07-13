@@ -19,6 +19,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Name</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
@@ -29,12 +30,40 @@
                                     </td>
                                     <td>{{ $category->name }}</td>
                                     <td>
-                                        <form action="{{ route('admin.categories.delete', $category->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger"><i
-                                                    class=" bx bx-trash"></i></button>
-                                        </form>
+                                        <div class="dropdown">
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-primary dropdown-toggle"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                    Actions
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <form class="dropdown-item"
+                                                            action="{{ route('admin.categories.update', $category->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <button type="button"
+                                                                class="btn btn-success update-product-btn"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#updateProductModal{{ $category->id }}">
+                                                                <i class="bx bx-recycle"></i>
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li>
+                                                        <form class="dropdown-item"
+                                                            action="{{ route('admin.categories.delete', $category->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-danger"><i
+                                                                    class=" bx bx-trash"></i></button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -74,5 +103,44 @@
                     </div>
                 </div>
             </div>
+            @foreach ($categories as $category)
+                <div class="modal fade" id="updateProductModal{{ $category->id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-xl" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel4">Update Category ({{ $category->name }})
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{ route('admin.categories.update', $category->id) }}" method="POST"
+                                    enctype="multipart/form-data">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="row mb-3">
+                                        <label for="nameExLarge" class="col-sm-2 col-form-label">Name</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                                id="nameExLarge" value="{{ $category->name }}" name="name"
+                                                placeholder="Enter product Name">
+                                            @error('name')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-secondary"
+                                            data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Update Category</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
     @endsection
