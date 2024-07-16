@@ -10,6 +10,11 @@
                         <i class="bx bx-folder-plus"></i>
                     </button>
                 </div>
+                <div class="ms-3"> <button type="submit" data-bs-toggle="modal" data-bs-target="#discountModal"
+                        class="btn btn-success float-end">
+                        <i class="bi bi-currency-dollar"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Basic Bootstrap Table -->
@@ -31,10 +36,11 @@
                         <tbody class="table-border-bottom-0">
                             @foreach ($products as $product)
                                 <tr>
-                                    <td><i class="fab fa-angular fa-lg text-danger me-3"></i>
+                                    <td>
                                         <strong>{{ $product->id }}</strong>
                                     </td>
-                                    <td>{{ $product->name }}</td>
+                                    <td><a href="{{ route('vendor.products.show', $product->id) }}"
+                                            class="fw-bold">{{ $product->name }}</a></td>
                                     <td>{{ $product->description }}</td>
                                     <td>{{ $product->price }}</td>
                                     <td>{{ $product->category->name }}</td>
@@ -47,41 +53,42 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <div class="dropdown">
-
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-primary dropdown-toggle"
-                                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                                    Actions
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                    <li>
-                                                        <form class="dropdown-item"
-                                                            action="{{ route('vendor.products.update', $product->id) }}"
-                                                            method="POST">
-                                                            @csrf
-                                                            @method('PATCH')
-                                                            <button type="button"
-                                                                class="btn btn-success update-product-btn"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#updateProductModal{{ $product->id }}">
-                                                                <i class="bx bx-recycle"></i>
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    <li>
-                                                        <form class="dropdown-item"
-                                                            action="{{ route('vendor.products.delete', $product->id) }}"
-                                                            method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger"><i
-                                                                    class=" bx bx-trash"></i></button>
-                                                        </form>
-                                                    </li>
-                                                </ul>
+                                        @if ($product->vendor_id == Auth::guard('vendor')->user()->id)
+                                            <div class="dropdown">
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-primary dropdown-toggle"
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Actions
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <form class="dropdown-item"
+                                                                action="{{ route('vendor.products.update', $product->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <button type="button"
+                                                                    class="btn btn-success update-product-btn"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#updateProductModal{{ $product->id }}">
+                                                                    <i class="bx bx-recycle"></i>
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                        <li>
+                                                            <form class="dropdown-item"
+                                                                action="{{ route('vendor.products.delete', $product->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-danger"><i
+                                                                        class=" bx bx-trash"></i></button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     </td>
 
                                 </tr>
@@ -227,7 +234,70 @@
                     </div>
                 </div>
             </div>
-            
+            <div class="modal fade" id="discountModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel4">Make a discount for All products</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('vendor.products.discount') }}" method="POST">
+                                @csrf
+                                <div class="row mb-3">
+                                    <label for="discount" class="col-sm-2 col-form-label">Discount Percentage</label>
+                                    <div class="col-sm-10">
+                                        <input type="number" class="form-control @error('discount') is-invalid @enderror"
+                                            id="discount" name="discount" placeholder="Enter discount percentage">
+                                        @error('discount')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label for="discount_start_date" class="col-sm-2 col-form-label">Start Date</label>
+                                    <div class="col-sm-10">
+                                        <input type="datetime-local"
+                                            class="form-control @error('discount_start_date') is-invalid @enderror"
+                                            id="discount_start_date" name="discount_start_date"
+                                            placeholder="Enter discount start date">
+                                        @error('discount_start_date')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label for="discount_end_date" class="col-sm-2 col-form-label">End Date</label>
+                                    <div class="col-sm-10">
+                                        <input type="datetime-local"
+                                            class="form-control @error('discount_end_date') is-invalid @enderror"
+                                            id="discount_end_date" name="discount_end_date"
+                                            placeholder="Enter discount end date">
+                                        @error('discount_end_date')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Apply Discount</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
 
             @foreach ($products as $product)
                 <div class="modal fade" id="updateProductModal{{ $product->id }}" tabindex="-1" aria-hidden="true">

@@ -9,6 +9,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
+        "laravel/scout": "^10.10",
         "laravel/tinker": "^2.8",
         "mindscms/laravelshoppingcart": "^2.1",
         "spatie/laravel-permission": "^6.9"

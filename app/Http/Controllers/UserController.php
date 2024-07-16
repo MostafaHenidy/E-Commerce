@@ -5,44 +5,144 @@ namespace App\Http\Controllers;
 use App\Models\Categories;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\ProductImage;
 use App\Models\Products;
 use App\Models\Review;
+use App\Models\Wishlist;
+use App\Models\WishlistItem;
 use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('auth');
+    }
     // ------------------------------------------------------------Product Management
     public function indexProducts(Request $request)
     {
         $query = Products::query();
 
+        // Filter by category
         if ($request->has('category_id') && $request->category_id != '') {
             $query->where('category_id', $request->category_id);
         }
 
-        if ($request->has('min_price') && $request->min_price != '') {
-            $query->where('price', '>=', $request->min_price);
+        // Filter by price after discount
+        if (($request->has('min_price') && $request->min_price != '') || ($request->has('max_price') && $request->max_price != '')) {
+            $query->where(function ($query) use ($request) {
+                if ($request->has('min_price') && $request->min_price != '') {
+                    $query->whereRaw('price - (price * discount / 100) >= ?', [$request->min_price]);
+                }
+                if ($request->has('max_price') && $request->max_price != '') {
+                    $query->whereRaw('price - (price * discount / 100) <= ?', [$request->max_price]);
+                }
+            });
         }
 
-        if ($request->has('max_price') && $request->max_price != '') {
-            $query->where('price', '<=', $request->max_price);
-        }
-
+        // Fetch products with vendor relationships
         $products = $query->with('vendor')->get();
+
+        $categories = Categories::all();
+        $cart = Cart::content();
+        $user = Auth::user();
+        $wishlistItems = WishlistItem::whereHas('wishlist', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->with('product')->get();
+        return view('user.products.index', compact('products', 'cart', 'categories', 'wishlistItems'));
+    }
+
+    public function search(Request $request)
+    {
+        $searchTerm = $request->input('search');
+        $products = Products::search($searchTerm)->get();
         $categories = Categories::all();
         $cart = Cart::content();
 
-        return view('user.products.index', compact('products', 'cart', 'categories'));
+        if ($products->isEmpty()) {
+            return redirect()->route('user.products.index')->with('status', 'No products found');
+        }
+        $user = Auth::user();
+        $wishlistItems = WishlistItem::whereHas('wishlist', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->with('product')->get();
+
+        return view('user.products.index', compact('products', 'cart', 'categories', 'wishlistItems'));
     }
+
+
+
     public function showProduct($id)
     {
         $product = Products::find($id);
         $reviews = Review::where('product_id', $id)->with('user')->get();
         $averageRating = $reviews->avg('rating');
-        return view('user.products.show', compact('product', 'reviews', 'averageRating'));
+        $productImages = ProductImage::where('product_id', $id)->get();
+        return view('user.products.show', compact('product', 'reviews', 'averageRating', 'productImages'));
     }
+
+    // ------------------------------------------------------------Wishlist Management
+    public function indexWishlist()
+    {
+        $user = Auth::user();
+        $wishlistItems = WishlistItem::whereHas('wishlist', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->with('product')->get();
+
+        return view('user.wishlist.index', compact('wishlistItems'));
+    }
+
+    public function addToWishlist($productId)
+    {
+        $user = Auth::user();
+
+        // Retrieve or create the wishlist
+        $wishlist = Wishlist::firstOrCreate(['user_id' => $user->id]);
+
+        // Check if the product already exists in the wishlist
+        $wishlistItem = WishlistItem::where('wishlist_id', $wishlist->id)
+            ->where('product_id', $productId)
+            ->first();
+        if ($wishlistItem) {
+            return redirect()->back()->with('error', 'Product is already in your wishlist');
+        }
+        // If the product does not exist in the wishlist, add it
+        if (!$wishlistItem) {
+            WishlistItem::create([
+                'wishlist_id' => $wishlist->id,
+                'product_id' => $productId,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Product added to wishlist');
+    }
+
+
+    public function removeFromWishlist($productId)
+    {
+        $user = Auth::user();
+
+        // Retrieve the wishlist for the authenticated user
+        $wishlist = Wishlist::where('user_id', $user->id)->first();
+
+        // If a wishlist exists, find the wishlist item and remove it
+        if ($wishlist) {
+            $wishlistItem = WishlistItem::where('wishlist_id', $wishlist->id)
+                ->where('product_id', $productId)
+                ->first();
+
+            if ($wishlistItem) {
+                $wishlistItem->delete();
+                return redirect()->back()->with('success', 'Product removed from wishlist');
+            }
+        }
+
+        return redirect()->back()->with('error', 'Product not found in wishlist');
+    }
+
     // ------------------------------------------------------------Order Management
     public function createOrder()
     {
@@ -195,29 +295,4 @@ class UserController extends Controller
 
         return redirect()->back()->with('error', 'Product not found in cart');
     }
-
-    // public function filter(Request $request)
-    // {
-
-    //     $query = Products::query();
-
-    //     if ($request->has('name') && $request->name != '') {
-    //         $query->where('name', 'like', '%' . $request->name . '%');
-    //     }
-
-    //     if ($request->has('category_id') && $request->category_id != '') {
-    //         $query->where('category_id', $request->category_id);
-    //     }
-
-    //     if ($request->has('min_price') && $request->min_price != '') {
-    //         $query->where('price', '>=', $request->min_price);
-    //     }
-
-    //     if ($request->has('max_price') && $request->max_price != '') {
-    //         $query->where('price', '<=', $request->max_price);
-    //     }
-
-    //     $products = $query->with('category')->get();
-    //     return view('user.products.index', compact('products'));
-    // }
 }

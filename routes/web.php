@@ -72,9 +72,8 @@ Route::middleware('admin')->prefix('admin')->group(function () {
     Route::delete('/admin/vendors/{id}', [AdminController::class, 'deleteVendors'])->name('admin.vendors.delete');
 
     Route::get('/products', [AdminController::class, 'indexProducts'])->name('admin.products.index');
-    Route::get('/products/create', [AdminController::class, 'createProduct'])->name('admin.products.create');
-    Route::post('/products', [AdminController::class, 'storeProduct'])->name('admin.products.store');
-    Route::delete('/products/{id}', [AdminController::class, 'deleteProduct'])->name('admin.products.delete');
+    Route::get('/products/{id}', [AdminController::class, 'showProduct'])->name('admin.products.show');
+
 
     Route::get('/categories', [AdminController::class, 'indexCategories'])->name('admin.categories.index');
     Route::get('/categories/create', [AdminController::class, 'createCategories'])->name('admin.categories.create');
@@ -83,40 +82,55 @@ Route::middleware('admin')->prefix('admin')->group(function () {
     Route::delete('/categories/{id}', [AdminController::class, 'deleteCategories'])->name('admin.categories.delete');
 
     Route::get('/orders', [AdminController::class, 'indexOrders'])->name('admin.orders.index');
+    Route::get('/orders/{id}', [AdminController::class, 'viewOrder'])->name('admin.orders.show');
+
+    Route::get('/roles', [AdminController::class, 'indexRoles'])->name('admin.roles.index');
 });
 
 //  -------------------------------Vendor Module
 Route::middleware('vendor')->prefix('vendor')->group(function () {
-    // -------------------------------Product Management
+
     Route::get('/products', [VendorController::class, 'indexProducts'])->name('vendor.products.index');
-    Route::get('/products/create', [VendorController::class, 'createProduct'])->name('vendor.products.create');
     Route::post('/products', [VendorController::class, 'storeProduct'])->name('vendor.products.store');
+    Route::get('/products/{id}', [VendorController::class, 'showProduct'])->name('vendor.products.show');
     Route::put('/products/{id}', [VendorController::class, 'updateProduct'])->name('vendor.products.update');
     Route::delete('/products/{id}', [VendorController::class, 'deleteProduct'])->name('vendor.products.delete');
-    // -------------------------------Order Management
+    Route::post('/products/upload/{id}', [VendorController::class, 'uploadMultipleImages'])->name('vendor.products.multi');
+    Route::delete('/products/upload/{id}', [VendorController::class, 'deleteMultipleImages'])->name('vendor.products.multidelete');
+    Route::post('products/discount', [VendorController::class, 'setDiscount'])->name('vendor.products.discount');
+
     Route::get('/orders', [VendorController::class, 'indexOrders'])->name('vendor.orders.index');
     Route::get('/orders/show/{id}', [VendorController::class, 'viewOrder'])->name('vendor.orders.show');
     Route::patch('/orders/show/{id}', [VendorController::class, 'updateOrder'])->name('vendor.orders.update');
 });
 
+
 //  -------------------------------User Module
 Route::middleware('auth')->prefix('user')->group(function () {
-    // ----------------------------------Product Management
+    // Product Management
     Route::get('/products', [UserController::class, 'indexProducts'])->name('user.products.index');
+    Route::get('/products/filter', [UserController::class, 'filterByCategory'])->name('user.products.categoryfilter');
+    Route::get('/products/search', [UserController::class, 'search'])->name('user.products.search');
+    Route::get('/products/wishlist', [UserController::class, 'indexWishlist'])->name('user.products.wishlist');
+    Route::post('/products/{id}/wishlist', [UserController::class, 'addToWishlist'])->name('user.wishlist.add');
+    Route::delete('/products/{id}/wishlist', [UserController::class, 'removeFromWishlist'])->name('user.wishlist.remove');
     Route::get('/products/{id}', [UserController::class, 'showProduct'])->name('user.products.show');
-    Route::get('/products/filter',[UserController::class,'filterByCategory'])->name('user.products.categoryfilter');
-    // ----------------------------------Cart Management 
-    Route::post('/products', [UserController::class, 'addToCart'])->name('user.cart.add');
+
+    // Cart Management
+    Route::post('/cart/add', [UserController::class, 'addToCart'])->name('user.cart.add');
     Route::delete('/cart/remove/{rowId}', [UserController::class, 'removeFromCart'])->name('user.cart.remove');
-    // ----------------------------------Order Management 
+    // Order Management
     Route::get('/orders/create', [UserController::class, 'createOrder'])->name('user.orders.create');
     Route::post('/orders', [UserController::class, 'storeOrder'])->name('user.orders.store');
     Route::get('/orders', [UserController::class, 'indexOrders'])->name('user.orders.index');
     Route::get('/orders/show/{id}', [UserController::class, 'viewOrder'])->name('user.orders.show');
     Route::patch('/orders/show/{id}', [VendorController::class, 'updateOrder'])->name('user.orders.update');
-    // ----------------------------------Review Management 
+
+    // Review Management
     Route::post('/reviews', [UserController::class, 'storeReview'])->name('user.reviews.store');
     Route::patch('/reviews', [UserController::class, 'updateReview'])->name('user.reviews.update');
     Route::delete('/reviews', [UserController::class, 'deleteReview'])->name('user.reviews.delete');
 });
+
+
 // ----------------------------  /Functionality Management ----------------------------------------------------

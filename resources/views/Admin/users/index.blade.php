@@ -19,7 +19,7 @@
                     <tbody class="table-border-bottom-0">
                         @foreach ($users as $user)
                             <tr>
-                                <td><i class="fab fa-angular fa-lg text-danger me-3"></i>
+                                <td>
                                     <strong>{{ $user->id }}</strong>
                                 </td>
                                 <td>{{ $user->name }}</td>

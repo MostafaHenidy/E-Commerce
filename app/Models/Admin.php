@@ -14,6 +14,7 @@ use Spatie\Permission\Traits\HasRoles;
 class Admin extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable,HasRoles;
+    protected $guard_name = 'admin';
     public $token;
     public function sendPasswordResetNotification($token)
     {

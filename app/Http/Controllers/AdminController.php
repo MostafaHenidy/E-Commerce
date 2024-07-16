@@ -4,19 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Models\Categories;
 use App\Models\Order;
+use App\Models\ProductImage;
 use App\Models\Products;
+use App\Models\Review;
 use App\Models\User;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class AdminController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('admin');
+    }
     // -----------------------User management-----------------
     public function indexUsers()
     {
         $users = User::all();
-        return view('admin.users.index', compact('users'));
+        $permissions = Permission::where('guard_name', 'user')->get();
+        return view('admin.users.index', compact('users', 'permissions'));
     }
     public function deleteUser($id)
     {
@@ -26,44 +37,17 @@ class AdminController extends Controller
     // -----------------------Product management-----------------
     public function indexProducts()
     {
-        $products = Products::with('category')->get();
-        return view('admin.products.index', compact('products'));
-    }
-    public function createProduct()
-    {
+        $products = Products::all();
         $categories = Categories::all();
-        return view('admin.products.create', compact('categories'));
+        return view('admin.products.index', compact('products', 'categories'));
     }
-    public function storeProduct(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'price' => 'required|numeric',
-            'category_id' => 'required|exists:categories,id',
-            'stock' => 'required|integer',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validate image
-        ]);
-        $product = new Products($request->except('image'));
-        $product->vendor_id = auth('admin')->user()->id;
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $imagePath = $image->storeAs('products', $imageName, 'public');
-
-            $product->image = '/storage/' . $imagePath;
-        }
-        $product->save();
-        return redirect()->route('admin.products.index')->with('success', 'Product created successfully');
-    }
-    public function deleteProduct($id)
+    public function showProduct($id)
     {
         $product = Products::find($id);
-        if (File::exists($product->image)) {
-            File::delete($product->image);
-        }
-        $product->delete();
-        return redirect()->back()->with('success', 'Product deleted successfully');
+        $reviews = Review::where('product_id', $id)->with('user')->get();
+        $averageRating = $reviews->avg('rating');
+        $productImages = ProductImage::where('product_id', $id)->get();
+        return view('admin.products.show', compact('product', 'reviews', 'averageRating', 'productImages'));
     }
 
     // -----------------------Category management-----------------
@@ -83,12 +67,12 @@ class AdminController extends Controller
         $category->save();
         return redirect()->route('admin.categories.index')->with('success', 'Category created successfully');
     }
-    public function updateCategories(Request $request,$id)
+    public function updateCategories(Request $request, $id)
     {
         $category = Categories::find($id);
-        $category->name =$request->name ; 
+        $category->name = $request->name;
         $category->update();
-        return redirect()->back()->with('success','Category updated successfully');
+        return redirect()->back()->with('success', 'Category updated successfully');
     }
     public function deleteCategories($id)
     {
@@ -113,6 +97,15 @@ class AdminController extends Controller
         $orders = Order::get();
         return view('admin.orders.index', compact('orders'));
     }
+    public function viewOrder($id)
+    {
+        $order = Order::with('orderItems.product')->findOrFail($id);
+        return view('admin.orders.show', compact('order'));
+    }
     // -----------------------Roles management-----------------
-
+    public function indexRoles()
+    {
+        $roles = Role::all();
+        return view('admin.roles.index', compact('roles'));
+    }
 }

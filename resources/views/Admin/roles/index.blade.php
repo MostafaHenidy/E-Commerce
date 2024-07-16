@@ -1,5 +1,5 @@
 @extends('admin.master')
-@section('title', 'Products')
+@section('title', 'Roles')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="container-xxl flex-grow-1 container-p-y">
@@ -16,26 +16,18 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Name</th>
-                                <th>Description</th>
-                                <th>Price</th>
-                                <th>Vendor ID</th>
-                                <th>Category name</th>
-                                <th>Stock</th>
+                                <th>Guard Name</th>
                             </tr>
                         </thead>
                         <tbody class="table-border-bottom-0">
-                            @foreach ($products as $product)
+                            @foreach ($roles as $role)
                                 <tr>
                                     <td>
-                                        <strong>{{ $product->id }}</strong>
+                                        <strong>{{ $role->id }}</strong>
                                     </td>
-                                    <td><a href="{{ route('admin.products.show', $product->id) }}">{{ $product->name }}</a>
+                                    <td>{{ $role->name }}</a>
                                     </td>
-                                    <td>{{ $product->description }}</td>
-                                    <td>{{ $product->price }}</td>
-                                    <td>{{ $product->vendor_id }}</td>
-                                    <td>{{ $product->category->name }}</td>
-                                    <td>{{ $product->stock }}</td>
+                                    <td>{{ $role->guard_name }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -44,3 +36,4 @@
             </div>
         </div>
     @endsection
+    8

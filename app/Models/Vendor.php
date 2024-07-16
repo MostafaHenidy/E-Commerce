@@ -16,6 +16,7 @@ class Vendor extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     public $token;
+    protected $guard_name = 'vendor';
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new UpdatedVendorNotification($token));

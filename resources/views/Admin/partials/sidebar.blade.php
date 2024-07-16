@@ -95,6 +95,12 @@
                         <div data-i18n="Categories">Orders</div>
                     </a>
                 </li>
+                <li class="menu-item">
+                    <a href="{{route('admin.roles.index')}}" class="menu-link">
+                        <i class="menu-icon tf-icons bx bx-glasses"></i>
+                        <div data-i18n="Roles">Roles</div>
+                    </a>
+                </li>
             </ul>
         </aside>
         <script>

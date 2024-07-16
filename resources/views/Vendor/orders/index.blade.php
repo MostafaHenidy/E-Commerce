@@ -17,11 +17,9 @@
                                 <p class="card-text">Status: <span
                                         class="badge bg-{{ $order->status === 'pending' ? 'warning' : ($order->status === 'success' ? 'success' : 'danger') }}">{{ $order->status }}</span>
                                 </p>
-                                <h6 class="card-title">Created at: {{ $order->created_at->format('d/m/Y') }}</h6>
                                 <a href="{{ route('vendor.orders.show', $order->id) }}"
                                     onclick="this.closest('form').submit();return false;" class="btn btn-primary">More
                                     Details</a>
-
                             </div>
                         </div>
                     </div>

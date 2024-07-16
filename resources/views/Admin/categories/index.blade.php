@@ -25,7 +25,7 @@
                         <tbody class="table-border-bottom-0">
                             @foreach ($categories as $category)
                                 <tr>
-                                    <td><i class="fab fa-angular fa-lg text-danger me-3"></i>
+                                    <td>
                                         <strong>{{ $category->id }}</strong>
                                     </td>
                                     <td>{{ $category->name }}</td>

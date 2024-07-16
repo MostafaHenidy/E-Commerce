@@ -20,7 +20,7 @@
                     <tbody class="table-border-bottom-0">
                         @foreach ($vendors as $vendor)
                             <tr>
-                                <td><i class="fab fa-angular fa-lg text-danger me-3"></i>
+                                <td>
                                     <strong>{{ $vendor->id }}</strong>
                                 </td>
                                 <td>{{ $vendor->name }}</td>

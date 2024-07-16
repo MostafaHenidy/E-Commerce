@@ -1,18 +1,6 @@
-@extends('user.master')
+@extends('admin.master')
 @section('title', 'Product Details')
 @section('content')
-
-    <div class="container-xxl mt-3">
-        <div class="d-flex flex-row">
-            <h5 class="fw-bold">Products > {{ $product->name }}</h5>
-            <div class="ms-auto">
-                <a href="{{ route('user.orders.create') }}" class="btn btn-primary float-end">
-                    <i class="bx bx-cart"></i>
-                    <span id="cart-count">Cart ({{ Cart::count() }})</span>
-                </a>
-            </div>
-        </div>
-    </div>
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card">
             <div class="container-fluid">
@@ -55,40 +43,72 @@
                             <span class="review-no">{{ $reviews->count() }} reviews</span>
                         </div>
                         <p class="product-description mt-2 text-wrap">{{ $product->description }}</p>
-                        <h5>Price:
-                            @php
-                                $discountedPrice = $product->price - ($product->price * $product->discount) / 100;
-                                $isDiscountActive =
-                                    $product->discount > 0 && strtotime($product->discount_end_date) >= time();
-                            @endphp
-
-                            @if ($isDiscountActive)
-                                <span class="discounted-price text-danger me-1 ">${{ $discountedPrice }}</span>
-                                instead of :
-                                <span class="original-price ms-2"
-                                    style="text-decoration: line-through;">${{ $product->price }}</span>
-                            @else
-                                <span class="price">${{ $product->price }}</span>
-                            @endif
-                        </h5>
+                        <h4 class="price">current price: <span>{{ $product->price }}$</span></h4>
                         <h6 class="sizes">Avaliable sizes: <span>{{ $product->sizes }}</span></h6>
                         <h6 class="colors">Avaliable colours: <span>{{ $product->colors }}</span></h6>
                         <h6 class="vendor_id">Vendor: <span>{{ $product->vendor->name }}</span></h6>
-                        <div class="action">
-                            <form class="card-link" action="{{ route('user.cart.add') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                <button type="submit" class="btn btn-primary"
-                                    @if ($product->stock <= 0) disabled @endif>
-                                    <i class="bx bx-cart pb-1"></i>
-                                    @if ($product->stock <= 0)
-                                        Out of Stock
-                                    @else
-                                        Add to cart
-                                    @endif
-                                </button>
-                            </form>
-                        </div>
+                        @if ($product->vendor_id == Auth::guard('admin')->user()->id)
+                            <div class="action">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        Manage Product
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <form class="btn"
+                                                action="{{ route('vendor.products.update', $product->id) }}"
+                                                method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="button" class="btn btn-success update-product-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#updateProductModal{{ $product->id }}">
+                                                    <i class="bx bx-recycle mb-1"></i>
+                                                    Update Product
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form class="btn"
+                                                action="{{ route('vendor.products.delete', $product->id) }}"
+                                                method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger"><i
+                                                        class="bx bx-trash mb-1"></i>
+                                                    Delete Product</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form class="btn"
+                                                action="{{ route('vendor.products.multi', $product->id) }}" method="POST"
+                                                enctype="multipart/form-data">
+                                                @csrf
+                                                <button type="button" class="btn btn-secondary update-product-btn"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#uploadImagesModal{{ $product->id }}">
+                                                    <i class="bx bx-upload mb-1"></i>
+                                                    Upload product images
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form class="btn"
+                                                action="{{ route('vendor.products.multidelete', $product->id) }}"
+                                                method="POST" enctype="multipart/form-data">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger ">
+                                                    <i class="bx bx-trash mb-1"></i>
+                                                    Delete product images
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -128,7 +148,7 @@
         <div class="card mt-3">
             <div class="container-fluid">
                 <div class="wrapper row">
-                    @if ($reviews->where('user_id', Auth::user()->id)->count() > 0)
+                    @if ($reviews->where('user_id', Auth::guard('admin')->user()->id)->count() > 0)
                         <form action="{{ route('user.reviews.update') }}" method="POST">
                             @csrf
                             @method('PATCH')
@@ -183,7 +203,6 @@
             </div>
         </div>
     </div>
-
 @endsection
 
 <style>

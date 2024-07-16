@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class PermissionSeeder extends Seeder
 {
@@ -12,28 +13,48 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        $permissions = [
-            'index_users',
-            'delete_user',
-            'index_products',
-            'view_product_details',
-            'create_product',
-            'delete_product',
-            'index_categories',
-            'create_category',
-            'delete_category',
-            'index_vendors',
-            'delete_vendor',
-            'assign_role',
-            'create_order',
-            'index_orders',
-            'view_order_details',
-            'update_order',
-            'create_review',
-            'update_review',    
-            'delete_review',
-            'add_to_cart',
-            'remove_from_cart',
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        $adminPermissions = [
+            'manage_users',
+            'manage_products',
+            'manage_categories',
+            'manage_vendors',
+            'manage_orders',
         ];
+
+        $vendorPermissions = [
+            'manage_products',
+            'manage_orders',
+        ];
+
+        $userPermissions = [
+            'manage_products',
+            'manage_orders',
+            'manage_reviews',
+            'manage_cart',
+        ];
+
+        // Create permissions
+        foreach ($adminPermissions as $permission) {
+            Permission::create(['name' => $permission, 'guard_name' => 'admin']);
+        }
+
+        foreach ($vendorPermissions as $permission) {
+            Permission::create(['name' => $permission, 'guard_name' => 'vendor']);
+        }
+
+        foreach ($userPermissions as $permission) {
+            Permission::create(['name' => $permission, 'guard_name' => 'web']);
+        }
+
+        // Create roles and assign permissions
+        $adminRole = Role::create(['name' => 'admin', 'guard_name' => 'admin']);
+        $vendorRole = Role::create(['name' => 'vendor', 'guard_name' => 'vendor']);
+        $userRole = Role::create(['name' => 'user', 'guard_name' => 'web']);
+
+        $adminRole->givePermissionTo($adminPermissions);
+        $vendorRole->givePermissionTo($vendorPermissions);
+        $userRole->givePermissionTo($userPermissions);
     }
 }
