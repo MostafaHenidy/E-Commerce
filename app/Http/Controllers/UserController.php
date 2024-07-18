@@ -8,8 +8,11 @@ use App\Models\OrderItem;
 use App\Models\ProductImage;
 use App\Models\Products;
 use App\Models\Review;
+use App\Models\Vendor;
 use App\Models\Wishlist;
 use App\Models\WishlistItem;
+use App\Notifications\UserPlacedOrderNotification;
+use Carbon\Carbon;
 use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -144,46 +147,116 @@ class UserController extends Controller
     }
 
     // ------------------------------------------------------------Order Management
-    public function createOrder()
-    {
-        $cart = Cart::content();
-        if ($cart->isEmpty()) {
-            return redirect()->route('user.products.index')->with('info', 'Your cart is empty.');
-        }
-        return view('user.orders.create', compact('cart'));
-    }
-    public function storeOrder(Request $request)
-    {
-        $cartContent = Cart::content();
-        $totalAmount = Cart::subtotal();
 
-        // Create a new order
+    public function createOrder()
+{
+    $cart = Cart::content();
+    if ($cart->isEmpty()) {
+        return redirect()->route('user.products.index')->with('info', 'Your cart is empty.');
+    }
+
+    foreach ($cart as $item) {
+        $product = Products::find($item->id);
+        if ($product) {
+            $originalPrice = $product->price; // Fetch the original price
+            $discount = $product->discount ?? 0; // Fetch the discount percentage
+            $discountEndDate = $product->discount_end_date; // Fetch the discount end date
+
+            // Check if the discount is still valid
+            if ($discount > 0 && $discountEndDate && Carbon::now()->lte(Carbon::parse($discountEndDate))) {
+                $discountedPrice = $originalPrice - ($originalPrice * ($discount / 100));
+            } else {
+                $discountedPrice = $originalPrice;
+                $discount = 0; // Set discount to 0 if it's no longer valid
+            }
+
+            // Update cart item with original price and discounted price
+            Cart::update($item->rowId, [
+                'price' => $originalPrice,
+                'options' => [
+                    'discount' => $discount,
+                    'original_price' => $originalPrice,
+                    'discounted_price' => $discountedPrice
+                ]
+            ]);
+        }
+    }
+
+    return view('user.orders.create', compact('cart'));
+}
+
+
+public function storeOrder(Request $request)
+{
+    $cartContent = Cart::content();
+    $totalAmount = 0;
+
+    // Group cart items by vendor
+    $vendorOrders = [];
+    foreach ($cartContent as $item) {
+        $product = Products::find($item->id);
+        $vendorId = $product->vendor_id;
+        if (!isset($vendorOrders[$vendorId])) {
+            $vendorOrders[$vendorId] = [
+                'total_amount' => 0,
+                'items' => [],
+            ];
+        }
+        $discount = $item->options->discount;
+        $discountEndDate = $product->discount_end_date; // Fetch the discount end date
+
+        // Check if the discount is still valid
+        if ($discount > 0 && $discountEndDate && Carbon::now()->lte(Carbon::parse($discountEndDate))) {
+            $discountedPrice = $item->options->discounted_price;
+        } else {
+            $discountedPrice = $item->price;
+        }
+
+        $vendorOrders[$vendorId]['total_amount'] += $discountedPrice * $item->qty;
+        $vendorOrders[$vendorId]['items'][] = [
+            'item' => $item,
+            'discounted_price' => $discountedPrice,
+        ];
+    }
+
+    // Create separate orders for each vendor
+    foreach ($vendorOrders as $vendorId => $vendorOrder) {
         $order = new Order();
         $order->user_id = auth()->user()->id;
-        $order->total_amount = $totalAmount;
-        $order->status = 'pending'; // You can set the initial status as 'pending' or any other status you prefer
+        $order->total_amount = $vendorOrder['total_amount'];
+        $order->status = 'pending'; // Set initial status as 'pending'
         $order->save();
+        
+        $vendor = Vendor::find($vendorId);
+        $vendor->notify(new UserPlacedOrderNotification(auth()->user()));
 
-        // Iterate over cart items and create order items
-        foreach ($cartContent as $item) {
+        // Create order items for each vendor order
+        foreach ($vendorOrder['items'] as $orderItemData) {
+            $item = $orderItemData['item'];
+            $discountedPrice = $orderItemData['discounted_price'];
+
             $orderItem = new OrderItem();
             $orderItem->order_id = $order->id;
             $orderItem->product_id = $item->id;
             $orderItem->quantity = $item->qty;
-            $orderItem->price = $item->price;
+            $orderItem->price = $discountedPrice;
             $orderItem->save();
+
             $product = Products::find($item->id);
             if ($product) {
                 $product->stock -= $item->qty;
                 $product->save();
             }
         }
-
-        // Clear the cart after order is placed
-        Cart::destroy();
-
-        return redirect()->route('user.orders.index')->with('success', 'Order placed successfully');
     }
+
+    // Clear the cart after order is placed
+    Cart::destroy();
+
+    return redirect()->route('user.orders.index')->with('success', 'Order placed successfully');
+}
+
+
 
     public function indexOrders()
     {

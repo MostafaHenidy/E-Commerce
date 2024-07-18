@@ -8,6 +8,7 @@ use App\Http\Controllers\UserHomeController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\VendorHomeController;
 use GuzzleHttp\Middleware;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -102,6 +103,15 @@ Route::middleware('vendor')->prefix('vendor')->group(function () {
     Route::get('/orders', [VendorController::class, 'indexOrders'])->name('vendor.orders.index');
     Route::get('/orders/show/{id}', [VendorController::class, 'viewOrder'])->name('vendor.orders.show');
     Route::patch('/orders/show/{id}', [VendorController::class, 'updateOrder'])->name('vendor.orders.update');
+
+    Route::get('/notification/read',function(){
+        Auth::guard('vendor')->user()->notifications->markAsRead();
+    })->name('vendor.notifications.read');
+    
+    Route::get('/notification/clear',function(){
+        Auth::guard('vendor')->user()->notifications()->delete();
+    })->name('vendor.notifications.clear');
+
 });
 
 

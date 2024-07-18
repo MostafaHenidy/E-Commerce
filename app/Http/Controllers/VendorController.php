@@ -190,11 +190,17 @@ class VendorController extends Controller
 
         return view('vendor.orders.index', compact('orders'));
     }
+
     public function viewOrder($id)
     {
-        $order = Order::with('orderItems.product')->findOrFail($id);
+        $vendorId = auth('vendor')->id();
+        $order = Order::with(['orderItems.product' => function ($query) use ($vendorId) {
+            $query->where('vendor_id', $vendorId);
+        }])->findOrFail($id);
+
         return view('vendor.orders.show', compact('order'));
     }
+
     public function updateOrder(Request $request, $id)
     {
         $order = Order::with('orderItems.product')->findOrFail($id);

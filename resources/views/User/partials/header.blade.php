@@ -1,6 +1,6 @@
 <nav class="navbar navbar-example navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="{{ route('user.products.index') }}">Navbar</a>
+        <a class="navbar-brand" href="{{ route('user.products.index') }}">E-Commerce</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-ex-2"
             aria-controls="navbar-ex-2" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>

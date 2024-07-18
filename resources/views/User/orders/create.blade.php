@@ -11,7 +11,9 @@
                         <tr>
                             <th>Name</th>
                             <th>Description</th>
-                            <th>Price</th>
+                            <th>Original Price</th>
+                            <th>Discount</th>
+                            <th>Price After Discount</th>
                             <th>Quantity</th>
                             <th>Total</th>
                             <th>Actions</th>
@@ -22,9 +24,11 @@
                             <tr>
                                 <td>{{ $item->name }}</td>
                                 <td>{{ $item->options->description }}</td>
-                                <td>{{ $item->price }}</td>
+                                <td>{{ $item->options->original_price }}</td>
+                                <td>{{ $item->options->discount }}%</td>
+                                <td>{{ $item->options->discounted_price }}</td>
                                 <td>{{ $item->qty }}</td>
-                                <td>{{ $item->price * $item->qty }}</td>
+                                <td>{{ $item->options->discounted_price * $item->qty }}</td>
                                 <td>
                                     <form action="{{ route('user.cart.remove', $item->rowId) }}" method="POST">
                                         @csrf
