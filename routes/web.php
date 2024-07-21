@@ -22,9 +22,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/',[UserController::class,'indexProducts']);
 
 
 //  -------------------------- Profile Management Section ---------------------------------------------
@@ -104,14 +102,13 @@ Route::middleware('vendor')->prefix('vendor')->group(function () {
     Route::get('/orders/show/{id}', [VendorController::class, 'viewOrder'])->name('vendor.orders.show');
     Route::patch('/orders/show/{id}', [VendorController::class, 'updateOrder'])->name('vendor.orders.update');
 
-    Route::get('/notification/read',function(){
+    Route::get('/notification/read', function () {
         Auth::guard('vendor')->user()->notifications->markAsRead();
     })->name('vendor.notifications.read');
-    
-    Route::get('/notification/clear',function(){
+
+    Route::get('/notification/clear', function () {
         Auth::guard('vendor')->user()->notifications()->delete();
     })->name('vendor.notifications.clear');
-
 });
 
 
