@@ -2,7 +2,7 @@
 @section('title', 'Products')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
-        <div class="d-flex flex-row">
+        {{-- <div class="d-flex flex-row">
             <h4 class="fw-bold py-3 mb-4">Products</h4>
             <div class="ms-auto">
                 <a href="{{ route('user.orders.create') }}" class="btn btn-primary float-end">
@@ -129,6 +129,7 @@
                     </div>
                 @endforeach
             </div>
-        @endif
+        @endif --}}
+        @livewire('products-component')
     </div>
 @endsection

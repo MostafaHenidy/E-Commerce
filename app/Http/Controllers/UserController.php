@@ -27,53 +27,53 @@ class UserController extends Controller
     // ------------------------------------------------------------Product Management
     public function indexProducts(Request $request)
     {
-        $query = Products::query();
+        // $query = Products::query();
 
-        // Filter by category
-        if ($request->has('category_id') && $request->category_id != '') {
-            $query->where('category_id', $request->category_id);
-        }
+        // // Filter by category
+        // if ($request->has('category_id') && $request->category_id != '') {
+        //     $query->where('category_id', $request->category_id);
+        // }
 
-        // Filter by price after discount
-        if (($request->has('min_price') && $request->min_price != '') || ($request->has('max_price') && $request->max_price != '')) {
-            $query->where(function ($query) use ($request) {
-                if ($request->has('min_price') && $request->min_price != '') {
-                    $query->whereRaw('price - (price * discount / 100) >= ?', [$request->min_price]);
-                }
-                if ($request->has('max_price') && $request->max_price != '') {
-                    $query->whereRaw('price - (price * discount / 100) <= ?', [$request->max_price]);
-                }
-            });
-        }
+        // // Filter by price after discount
+        // if (($request->has('min_price') && $request->min_price != '') || ($request->has('max_price') && $request->max_price != '')) {
+        //     $query->where(function ($query) use ($request) {
+        //         if ($request->has('min_price') && $request->min_price != '') {
+        //             $query->whereRaw('price - (price * discount / 100) >= ?', [$request->min_price]);
+        //         }
+        //         if ($request->has('max_price') && $request->max_price != '') {
+        //             $query->whereRaw('price - (price * discount / 100) <= ?', [$request->max_price]);
+        //         }
+        //     });
+        // }
 
-        // Fetch products with vendor relationships
-        $products = $query->with('vendor')->get();
+        // // Fetch products with vendor relationships
+        // $products = $query->with('vendor')->get();
 
-        $categories = Categories::all();
-        $cart = Cart::content();
-        $user = Auth::user();
-        $wishlistItems = WishlistItem::whereHas('wishlist', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })->with('product')->get();
-        return view('user.products.index', compact('products', 'cart', 'categories', 'wishlistItems'));
+        // $categories = Categories::all();
+        // $cart = Cart::content();
+        // $user = Auth::user();
+        // $wishlistItems = WishlistItem::whereHas('wishlist', function ($query) use ($user) {
+        //     $query->where('user_id', $user->id);
+        // })->with('product')->get();
+        return view('user.products.index');
     }
 
     public function search(Request $request)
     {
-        $searchTerm = $request->input('search');
-        $products = Products::search($searchTerm)->get();
-        $categories = Categories::all();
-        $cart = Cart::content();
+        // $searchTerm = $request->input('search');
+        // $products = Products::search($searchTerm)->get();
+        // $categories = Categories::all();
+        // $cart = Cart::content();
 
-        if ($products->isEmpty()) {
-            return redirect()->route('user.products.index')->with('status', 'No products found');
-        }
-        $user = Auth::user();
-        $wishlistItems = WishlistItem::whereHas('wishlist', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })->with('product')->get();
+        // if ($products->isEmpty()) {
+        //     return redirect()->route('user.products.index')->with('status', 'No products found');
+        // }
+        // $user = Auth::user();
+        // $wishlistItems = WishlistItem::whereHas('wishlist', function ($query) use ($user) {
+        //     $query->where('user_id', $user->id);
+        // })->with('product')->get();
 
-        return view('user.products.index', compact('products', 'cart', 'categories', 'wishlistItems'));
+        return view('user.products.index');
     }
 
 
