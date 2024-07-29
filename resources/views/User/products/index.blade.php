@@ -1,4 +1,5 @@
 @extends('user.master')
+@section('products-active','active')
 @section('title', 'Products')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
@@ -131,5 +132,11 @@
             </div>
         @endif --}}
         @livewire('products-component')
+        <div class="position-fixed bottom-0 end-0 m-5">
+            <a class="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-offset="0,4" data-bs-placement="top"
+                data-bs-html="true" title="<span>Contact Support</span>" href="{{route('user.support.index')}}">
+                <i class="bi bi-chat-fill"></i>
+            </a>
+        </div>
     </div>
 @endsection

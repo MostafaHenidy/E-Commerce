@@ -1,5 +1,6 @@
 <div>
-    <a wire:poll.15s="loadNotifications" data-bs-toggle="modal" data-bs-target="#smallModal" class="notificationsIcon">
+    <a wire:poll.keepModalOpen.10s="loadNotifications" data-bs-toggle="modal" data-bs-target="#smallModal"
+        class="notificationsIcon">
         <i class="bi @if ($unreadCount > 0) bi-bell-fill @else bi-bell @endif">
             <span>
                 <i class="bi text-danger">{{ $unreadCount }}</i>
@@ -14,7 +15,7 @@
                     <h5 class="modal-title" id="exampleModalLabel2">Notifications</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body notificationModal"wire:click.prevent='markasRead'>
+                <div class="modal-body notificationModal" wire:click.prevent='markasRead'>
                     @foreach ($notifications as $notification)
                         <div class="row @if ($notification->read_at == null) bg-light @else bg-transparent @endif">
                             <div class="col-auto">

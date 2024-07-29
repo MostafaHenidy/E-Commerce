@@ -1,4 +1,5 @@
 @extends('vendor.master')
+@section('dashboard-active','active')
 @section('title', 'vendor Dashboard')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">

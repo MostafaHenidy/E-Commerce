@@ -1,4 +1,5 @@
 @extends('admin.master')
+@section('products-active','active')
 @section('title', 'Products')
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
