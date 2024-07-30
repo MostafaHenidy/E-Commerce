@@ -101,6 +101,12 @@
                         <div data-i18n="Roles">Roles</div>
                     </a>
                 </li>
+                <li class="menu-item @yield('support-active')">
+                    <a href="{{ route('admin.support.index') }}" class="menu-link">
+                        <i class=" menu-icon fa-solid fa-phone"></i>
+                        <div data-i18n="Roles">Support</div>
+                    </a>
+                </li>
             </ul>
         </aside>
         <script>

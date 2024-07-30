@@ -77,6 +77,12 @@
                         <div data-i18n="Orders">Orders</div>
                     </a>
                 </li>
+                <li class="menu-item @yield('support-active')">
+                    <a href="{{ route('user.support.index') }}" class="menu-link">
+                        <i class=" menu-icon fa-solid fa-phone"></i>
+                        <div data-i18n="Roles">Support</div>
+                    </a>
+                </li>
         </aside>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
