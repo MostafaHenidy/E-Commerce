@@ -22,12 +22,12 @@
                         </div>
                         <div class="chat-history">
                             <ul class="m-b-0">
-                                @foreach ($messages as $message)
+                                {{-- @foreach ($messages as $message)
                                     <li class="clearfix">
                                         <div class="message my-message">{{ $message->message }}</div>
                                     </li>
-                                @endforeach
-                                @livewire('chat')
+                                @endforeach --}}
+                                @livewire('user.support.chat')
                             </ul>
                         </div>
                     </div>

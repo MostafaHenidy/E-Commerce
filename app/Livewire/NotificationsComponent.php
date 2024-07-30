@@ -7,34 +7,29 @@ use Livewire\Component;
 
 class NotificationsComponent extends Component
 {
-    public $unreadCount;
-    public $notifications;
-
-    protected $listeners = ['refreshNotifications' => 'mount'];
+    public $notifications, $unreadCount;
+    protected $listeners = ['notificationRead' => 'loadNotifications'];
 
     public function mount()
     {
         $this->loadNotifications();
     }
-
     public function loadNotifications()
     {
-        $user = Auth::guard('vendor')->user();
-        $this->unreadCount = $user->unreadNotifications->count();
-        $this->notifications = $user->notifications;
+        $this->notifications = Auth::guard('vendor')->user()->notifications;
+        $this->unreadCount = $this->notifications->where('read_at', null)->count();
     }
-    public function markasRead()
+    public function markAsRead()
     {
-        $user = Auth::guard('vendor')->user();
-        $user->unreadNotifications->markAsRead();
-        $this->loadNotifications();
+        $unreadNotifications = Auth::guard('vendor')->user()->unreadNotifications;
+        $unreadNotifications->markAsRead();
+
+        $this->dispatch('notificationRead');
     }
-    public function clearNotifications()
+    public function clearAll()
     {
-        $user = Auth::guard('vendor')->user();
-        $user->notifications()->delete();
-        $this->loadNotifications();
-        $this->dispatch('refreshNotifications')->self();
+        Auth::guard('vendor')->user()->notifications()->delete();
+        $this->dispatch('notificationRead');
     }
     public function render()
     {

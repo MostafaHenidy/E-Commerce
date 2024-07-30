@@ -111,7 +111,7 @@ class AdminController extends Controller
     }
     public function support()
     {
-        $messages = Message::where('receiver_id',Auth::guard('admin')->user()->id);
-        return view('admin.support.index',compact('messages'));
+
+        return view('admin.support.index');
     }
 }

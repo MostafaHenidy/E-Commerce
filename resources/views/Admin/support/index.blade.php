@@ -18,12 +18,12 @@
                         </div>
                         <div class="chat-history">
                             <ul class="m-b-0">
-                                @foreach ($messages as $message)
+                                {{-- @foreach ($messages as $message)
                                     <li class="clearfix">
                                         <div class="message other-message float-start">{{ $message->message }}</div>
                                     </li>
-                                @endforeach
-                                @livewire('chat', ['adminId' => Auth::guard('admin')->user()->id])
+                                @endforeach --}}
+                                @livewire('user.support.chat')
                             </ul>
                         </div>
                     </div>

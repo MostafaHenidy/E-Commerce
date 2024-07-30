@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UserPlacedOrderEvent;
 use App\Models\Categories;
 use App\Models\Message;
 use App\Models\Order;
@@ -230,7 +231,7 @@ class UserController extends Controller
 
             $vendor = Vendor::find($vendorId);
             $vendor->notify(new UserPlacedOrderNotification(auth()->user()));
-
+            UserPlacedOrderEvent::dispatch(auth()->user());
             // Create order items for each vendor order
             foreach ($vendorOrder['items'] as $orderItemData) {
                 $item = $orderItemData['item'];
@@ -373,7 +374,6 @@ class UserController extends Controller
 
     public function support()
     {
-        $messages = Message::where('user_id',Auth::user()->id);
-        return view('user.support.index' ,compact('messages'));
+        return view('user.support.index');
     }
 }
