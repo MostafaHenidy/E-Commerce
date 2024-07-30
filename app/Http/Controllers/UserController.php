@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UserPlacedOrderEvent;
 use App\Models\Categories;
+use App\Models\Message;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ProductImage;
@@ -27,53 +29,53 @@ class UserController extends Controller
     // ------------------------------------------------------------Product Management
     public function indexProducts(Request $request)
     {
-        $query = Products::query();
+        // $query = Products::query();
 
-        // Filter by category
-        if ($request->has('category_id') && $request->category_id != '') {
-            $query->where('category_id', $request->category_id);
-        }
+        // // Filter by category
+        // if ($request->has('category_id') && $request->category_id != '') {
+        //     $query->where('category_id', $request->category_id);
+        // }
 
-        // Filter by price after discount
-        if (($request->has('min_price') && $request->min_price != '') || ($request->has('max_price') && $request->max_price != '')) {
-            $query->where(function ($query) use ($request) {
-                if ($request->has('min_price') && $request->min_price != '') {
-                    $query->whereRaw('price - (price * discount / 100) >= ?', [$request->min_price]);
-                }
-                if ($request->has('max_price') && $request->max_price != '') {
-                    $query->whereRaw('price - (price * discount / 100) <= ?', [$request->max_price]);
-                }
-            });
-        }
+        // // Filter by price after discount
+        // if (($request->has('min_price') && $request->min_price != '') || ($request->has('max_price') && $request->max_price != '')) {
+        //     $query->where(function ($query) use ($request) {
+        //         if ($request->has('min_price') && $request->min_price != '') {
+        //             $query->whereRaw('price - (price * discount / 100) >= ?', [$request->min_price]);
+        //         }
+        //         if ($request->has('max_price') && $request->max_price != '') {
+        //             $query->whereRaw('price - (price * discount / 100) <= ?', [$request->max_price]);
+        //         }
+        //     });
+        // }
 
-        // Fetch products with vendor relationships
-        $products = $query->with('vendor')->get();
+        // // Fetch products with vendor relationships
+        // $products = $query->with('vendor')->get();
 
-        $categories = Categories::all();
-        $cart = Cart::content();
-        $user = Auth::user();
-        $wishlistItems = WishlistItem::whereHas('wishlist', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })->with('product')->get();
-        return view('user.products.index', compact('products', 'cart', 'categories', 'wishlistItems'));
+        // $categories = Categories::all();
+        // $cart = Cart::content();
+        // $user = Auth::user();
+        // $wishlistItems = WishlistItem::whereHas('wishlist', function ($query) use ($user) {
+        //     $query->where('user_id', $user->id);
+        // })->with('product')->get();
+        return view('user.products.index');
     }
 
     public function search(Request $request)
     {
-        $searchTerm = $request->input('search');
-        $products = Products::search($searchTerm)->get();
-        $categories = Categories::all();
-        $cart = Cart::content();
+        // $searchTerm = $request->input('search');
+        // $products = Products::search($searchTerm)->get();
+        // $categories = Categories::all();
+        // $cart = Cart::content();
 
-        if ($products->isEmpty()) {
-            return redirect()->route('user.products.index')->with('status', 'No products found');
-        }
-        $user = Auth::user();
-        $wishlistItems = WishlistItem::whereHas('wishlist', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })->with('product')->get();
+        // if ($products->isEmpty()) {
+        //     return redirect()->route('user.products.index')->with('status', 'No products found');
+        // }
+        // $user = Auth::user();
+        // $wishlistItems = WishlistItem::whereHas('wishlist', function ($query) use ($user) {
+        //     $query->where('user_id', $user->id);
+        // })->with('product')->get();
 
-        return view('user.products.index', compact('products', 'cart', 'categories', 'wishlistItems'));
+        return view('user.products.index');
     }
 
 
@@ -149,112 +151,112 @@ class UserController extends Controller
     // ------------------------------------------------------------Order Management
 
     public function createOrder()
-{
-    $cart = Cart::content();
-    if ($cart->isEmpty()) {
-        return redirect()->route('user.products.index')->with('info', 'Your cart is empty.');
+    {
+        $cart = Cart::content();
+        if ($cart->isEmpty()) {
+            return redirect()->route('user.products.index')->with('info', 'Your cart is empty.');
+        }
+
+        foreach ($cart as $item) {
+            $product = Products::find($item->id);
+            if ($product) {
+                $originalPrice = $product->price; // Fetch the original price
+                $discount = $product->discount ?? 0; // Fetch the discount percentage
+                $discountEndDate = $product->discount_end_date; // Fetch the discount end date
+
+                // Check if the discount is still valid
+                if ($discount > 0 && $discountEndDate && Carbon::now()->lte(Carbon::parse($discountEndDate))) {
+                    $discountedPrice = $originalPrice - ($originalPrice * ($discount / 100));
+                } else {
+                    $discountedPrice = $originalPrice;
+                    $discount = 0; // Set discount to 0 if it's no longer valid
+                }
+
+                // Update cart item with original price and discounted price
+                Cart::update($item->rowId, [
+                    'price' => $originalPrice,
+                    'options' => [
+                        'discount' => $discount,
+                        'original_price' => $originalPrice,
+                        'discounted_price' => $discountedPrice
+                    ]
+                ]);
+            }
+        }
+
+        return view('user.orders.create', compact('cart'));
     }
 
-    foreach ($cart as $item) {
-        $product = Products::find($item->id);
-        if ($product) {
-            $originalPrice = $product->price; // Fetch the original price
-            $discount = $product->discount ?? 0; // Fetch the discount percentage
+
+    public function storeOrder(Request $request)
+    {
+        $cartContent = Cart::content();
+        $totalAmount = 0;
+
+        // Group cart items by vendor
+        $vendorOrders = [];
+        foreach ($cartContent as $item) {
+            $product = Products::find($item->id);
+            $vendorId = $product->vendor_id;
+            if (!isset($vendorOrders[$vendorId])) {
+                $vendorOrders[$vendorId] = [
+                    'total_amount' => 0,
+                    'items' => [],
+                ];
+            }
+            $discount = $item->options->discount;
             $discountEndDate = $product->discount_end_date; // Fetch the discount end date
 
             // Check if the discount is still valid
             if ($discount > 0 && $discountEndDate && Carbon::now()->lte(Carbon::parse($discountEndDate))) {
-                $discountedPrice = $originalPrice - ($originalPrice * ($discount / 100));
+                $discountedPrice = $item->options->discounted_price;
             } else {
-                $discountedPrice = $originalPrice;
-                $discount = 0; // Set discount to 0 if it's no longer valid
+                $discountedPrice = $item->price;
             }
 
-            // Update cart item with original price and discounted price
-            Cart::update($item->rowId, [
-                'price' => $originalPrice,
-                'options' => [
-                    'discount' => $discount,
-                    'original_price' => $originalPrice,
-                    'discounted_price' => $discountedPrice
-                ]
-            ]);
-        }
-    }
-
-    return view('user.orders.create', compact('cart'));
-}
-
-
-public function storeOrder(Request $request)
-{
-    $cartContent = Cart::content();
-    $totalAmount = 0;
-
-    // Group cart items by vendor
-    $vendorOrders = [];
-    foreach ($cartContent as $item) {
-        $product = Products::find($item->id);
-        $vendorId = $product->vendor_id;
-        if (!isset($vendorOrders[$vendorId])) {
-            $vendorOrders[$vendorId] = [
-                'total_amount' => 0,
-                'items' => [],
+            $vendorOrders[$vendorId]['total_amount'] += $discountedPrice * $item->qty;
+            $vendorOrders[$vendorId]['items'][] = [
+                'item' => $item,
+                'discounted_price' => $discountedPrice,
             ];
         }
-        $discount = $item->options->discount;
-        $discountEndDate = $product->discount_end_date; // Fetch the discount end date
 
-        // Check if the discount is still valid
-        if ($discount > 0 && $discountEndDate && Carbon::now()->lte(Carbon::parse($discountEndDate))) {
-            $discountedPrice = $item->options->discounted_price;
-        } else {
-            $discountedPrice = $item->price;
-        }
+        // Create separate orders for each vendor
+        foreach ($vendorOrders as $vendorId => $vendorOrder) {
+            $order = new Order();
+            $order->user_id = auth()->user()->id;
+            $order->total_amount = $vendorOrder['total_amount'];
+            $order->status = 'pending'; // Set initial status as 'pending'
+            $order->save();
 
-        $vendorOrders[$vendorId]['total_amount'] += $discountedPrice * $item->qty;
-        $vendorOrders[$vendorId]['items'][] = [
-            'item' => $item,
-            'discounted_price' => $discountedPrice,
-        ];
-    }
+            $vendor = Vendor::find($vendorId);
+            $vendor->notify(new UserPlacedOrderNotification(auth()->user()));
+            UserPlacedOrderEvent::dispatch(auth()->user());
+            // Create order items for each vendor order
+            foreach ($vendorOrder['items'] as $orderItemData) {
+                $item = $orderItemData['item'];
+                $discountedPrice = $orderItemData['discounted_price'];
 
-    // Create separate orders for each vendor
-    foreach ($vendorOrders as $vendorId => $vendorOrder) {
-        $order = new Order();
-        $order->user_id = auth()->user()->id;
-        $order->total_amount = $vendorOrder['total_amount'];
-        $order->status = 'pending'; // Set initial status as 'pending'
-        $order->save();
-        
-        $vendor = Vendor::find($vendorId);
-        $vendor->notify(new UserPlacedOrderNotification(auth()->user()));
+                $orderItem = new OrderItem();
+                $orderItem->order_id = $order->id;
+                $orderItem->product_id = $item->id;
+                $orderItem->quantity = $item->qty;
+                $orderItem->price = $discountedPrice;
+                $orderItem->save();
 
-        // Create order items for each vendor order
-        foreach ($vendorOrder['items'] as $orderItemData) {
-            $item = $orderItemData['item'];
-            $discountedPrice = $orderItemData['discounted_price'];
-
-            $orderItem = new OrderItem();
-            $orderItem->order_id = $order->id;
-            $orderItem->product_id = $item->id;
-            $orderItem->quantity = $item->qty;
-            $orderItem->price = $discountedPrice;
-            $orderItem->save();
-
-            $product = Products::find($item->id);
-            if ($product) {
-                $product->stock -= $item->qty;
-                $product->save();
+                $product = Products::find($item->id);
+                if ($product) {
+                    $product->stock -= $item->qty;
+                    $product->save();
+                }
             }
         }
+
+        // Clear the cart after order is placed
+        Cart::destroy();
+
+        return redirect()->route('user.orders.index')->with('success', 'Order placed successfully');
     }
-
-    // Clear the cart after order is placed
-    Cart::destroy();
-
-    return redirect()->route('user.orders.index')->with('success', 'Order placed successfully');
-}
 
 
 
@@ -367,5 +369,11 @@ public function storeOrder(Request $request)
         }
 
         return redirect()->back()->with('error', 'Product not found in cart');
+    }
+
+
+    public function support()
+    {
+        return view('user.support.index');
     }
 }

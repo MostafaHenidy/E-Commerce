@@ -57,7 +57,7 @@
 
             <ul class="menu-inner py-1">
                 <!-- Dashboard -->
-                <li class="menu-item active">
+                <li class="menu-item @yield('dashboard-active')">
                     <a href="{{ route('admin.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-home-circle"></i>
                         <div data-i18n="Analytics">Dashboard</div>
@@ -65,38 +65,38 @@
                 </li>
 
                 <!-- Users -->
-                <li class="menu-item">
-                    <a href="{{route('admin.users.index')}}" class="menu-link">
+                <li class="menu-item @yield('users-active')">
+                    <a href="{{ route('admin.users.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-user"></i>
                         <div data-i18n="Users">Users</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="{{route('admin.vendors.index')}}" class="menu-link">
+                <li class="menu-item @yield('vendors-active')">
+                    <a href="{{ route('admin.vendors.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-user"></i>
                         <div data-i18n="Users">Vendors</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="{{route('admin.products.index')}}" class="menu-link">
+                <li class="menu-item @yield('products-active')">
+                    <a href="{{ route('admin.products.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-package"></i>
                         <div data-i18n="Products">Products</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="{{route('admin.categories.index')}}" class="menu-link">
+                <li class="menu-item @yield('categories-active')">
+                    <a href="{{ route('admin.categories.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-category"></i>
                         <div data-i18n="Categories">Categories</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="{{route('admin.orders.index')}}" class="menu-link">
+                <li class="menu-item @yield('orders-active')">
+                    <a href="{{ route('admin.orders.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-file"></i>
                         <div data-i18n="Categories">Orders</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="{{route('admin.roles.index')}}" class="menu-link">
+                <li class="menu-item @yield('roles-active')">
+                    <a href="{{ route('admin.roles.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-glasses"></i>
                         <div data-i18n="Roles">Roles</div>
                     </a>
@@ -109,25 +109,3 @@
                 </li>
             </ul>
         </aside>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                var menuItems = document.querySelectorAll('.menu-item');
-
-                menuItems.forEach(function(item) {
-                    item.addEventListener('click', function() {
-                        menuItems.forEach(function(item) {
-                            item.classList.remove('active');
-                        });
-                        this.classList.add('active');
-                    });
-                });
-
-                // Optionally, set active based on current URL
-                var currentPath = window.location.pathname;
-                if (currentPath.includes('Users')) {
-                    document.getElementById('Users').classList.add('active');
-                } else {
-                    document.getElementById('dashboard').classList.add('active');
-                }
-            });
-        </script>

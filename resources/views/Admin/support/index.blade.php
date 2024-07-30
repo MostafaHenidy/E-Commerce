@@ -1,4 +1,4 @@
-@extends('user.master')
+@extends('admin.master')
 @section('title', 'Contact Support')
 <link rel="stylesheet" href="{{ asset('assets') }}/css/chat.css">
 @section('content')
@@ -11,11 +11,7 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="chat-about d-flex">
-                                        <div wire:offline.remove class="avatar avatar-online">
-                                            <img src="{{ Auth::user()->avatar }}" alt
-                                                class="w-px-40 h-px-40 rounded-circle" />
-                                        </div>
-                                        <h6 class="ms-3 mt-2">{{ Auth::user()->name }}</h6>
+                                        <h6 class="ms-3 mt-2">User Messages</h6>
                                     </div>
                                 </div>
                             </div>
@@ -24,7 +20,7 @@
                             <ul class="m-b-0">
                                 {{-- @foreach ($messages as $message)
                                     <li class="clearfix">
-                                        <div class="message my-message">{{ $message->message }}</div>
+                                        <div class="message other-message float-start">{{ $message->message }}</div>
                                     </li>
                                 @endforeach --}}
                                 @livewire('user.support.chat')

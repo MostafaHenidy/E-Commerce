@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Categories;
+use App\Models\Message;
 use App\Models\Order;
 use App\Models\ProductImage;
 use App\Models\Products;
@@ -107,5 +108,10 @@ class AdminController extends Controller
     {
         $roles = Role::all();
         return view('admin.roles.index', compact('roles'));
+    }
+    public function support()
+    {
+
+        return view('admin.support.index');
     }
 }

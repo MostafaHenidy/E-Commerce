@@ -57,7 +57,7 @@
 
             <ul class="menu-inner py-1">
                 <!-- Dashboard -->
-                <li class="menu-item active">
+                <li class="menu-item @yield('dashboard-active')">
                     <a href="{{ route('vendor.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-home-circle"></i>
                         <div data-i18n="Analytics">Dashboard</div>
@@ -65,40 +65,17 @@
                 </li>
 
                 <!-- Products -->
-                <li class="menu-item">
-                    <a href="{{route('vendor.products.index')}}" class="menu-link">
+                <li class="menu-item @yield('products-active')">
+                    <a href="{{ route('vendor.products.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-package"></i>
                         <div data-i18n="Products">Products</div>
                     </a>
                 </li>
-                <li class="menu-item">
-                    <a href="{{route('vendor.orders.index')}}" class="menu-link">
+                <li class="menu-item @yield('orders-active')">
+                    <a href="{{ route('vendor.orders.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-file"></i>
                         <div data-i18n="orders">Orders</div>
                     </a>
                 </li>
             </ul>
         </aside>
-        
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                var menuItems = document.querySelectorAll('.menu-item');
-                
-                menuItems.forEach(function(item) {
-                    item.addEventListener('click', function() {
-                        menuItems.forEach(function(item) {
-                            item.classList.remove('active');
-                        });
-                        this.classList.add('active');
-                    });
-                });
-        
-                // Optionally, set active based on current URL
-                var currentPath = window.location.pathname;
-                if (currentPath.includes('products')) {
-                    document.getElementById('products').classList.add('active');
-                } else {
-                    document.getElementById('dashboard').classList.add('active');
-                }
-            });
-        </script>

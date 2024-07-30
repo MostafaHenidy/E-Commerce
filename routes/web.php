@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/',[UserController::class,'indexProducts']);
+Route::get('/', [UserController::class, 'indexProducts']);
 
 
 //  -------------------------- Profile Management Section ---------------------------------------------
@@ -84,6 +84,8 @@ Route::middleware('admin')->prefix('admin')->group(function () {
     Route::get('/orders/{id}', [AdminController::class, 'viewOrder'])->name('admin.orders.show');
 
     Route::get('/roles', [AdminController::class, 'indexRoles'])->name('admin.roles.index');
+
+    Route::get('/support', [AdminController::class, 'support'])->name('admin.support.index');
 });
 
 //  -------------------------------Vendor Module
@@ -101,14 +103,6 @@ Route::middleware('vendor')->prefix('vendor')->group(function () {
     Route::get('/orders', [VendorController::class, 'indexOrders'])->name('vendor.orders.index');
     Route::get('/orders/show/{id}', [VendorController::class, 'viewOrder'])->name('vendor.orders.show');
     Route::patch('/orders/show/{id}', [VendorController::class, 'updateOrder'])->name('vendor.orders.update');
-
-    Route::get('/notification/read', function () {
-        Auth::guard('vendor')->user()->notifications->markAsRead();
-    })->name('vendor.notifications.read');
-
-    Route::get('/notification/clear', function () {
-        Auth::guard('vendor')->user()->notifications()->delete();
-    })->name('vendor.notifications.clear');
 });
 
 
@@ -137,6 +131,8 @@ Route::middleware('auth')->prefix('user')->group(function () {
     Route::post('/reviews', [UserController::class, 'storeReview'])->name('user.reviews.store');
     Route::patch('/reviews', [UserController::class, 'updateReview'])->name('user.reviews.update');
     Route::delete('/reviews', [UserController::class, 'deleteReview'])->name('user.reviews.delete');
+
+    Route::get('/support', [UserController::class, 'support'])->name('user.support.index');
 });
 
 

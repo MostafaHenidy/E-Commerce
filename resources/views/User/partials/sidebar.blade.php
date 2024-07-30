@@ -57,22 +57,23 @@
 
             <ul class="menu-inner py-1">
                 <!-- Dashboard -->
-                <li id="dashboard" class="menu-item active">
+                <li id="dashboard" class="menu-item @yield('dashboard-active')">
                     <a href="{{ route('user.index') }}" class="menu-link">
                         <i class="menu-icon tf-icons bx bx-home-circle"></i>
                         <div data-i18n="Analytics">Dashboard</div>
                     </a>
                 </li>
 
-                <!-- Layouts -->
-                <li id="products" class="menu-item">
-                    <a href="{{ route('user.products.index') }}" class="menu-link">
+                <!-- Products -->
+                <li id="products" class="menu-item @yield('products-active')">
+                    <a href="{{ route('user.products.index') }}" class="menu-link ">
                         <i class="menu-icon tf-icons bx bx-package"></i>
                         <div data-i18n="Products">Products</div>
                     </a>
                 </li>
-                <li id="products" class="menu-item">
-                    <a href="{{ route('user.orders.index') }}" class="menu-link">
+                <!-- Orders -->
+                <li id="products" class="menu-item @yield('orders-active')">
+                    <a href="{{ route('user.orders.index') }}" class="menu-link ">
                         <i class="menu-icon tf-icons bx bx-file"></i>
                         <div data-i18n="Orders">Orders</div>
                     </a>
@@ -84,34 +85,3 @@
                     </a>
                 </li>
         </aside>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                var menuItems = document.querySelectorAll('.menu-item');
-
-                menuItems.forEach(function(item) {
-                    item.addEventListener('click', function() {
-                        menuItems.forEach(function(item) {
-                            item.classList.remove('active');
-                        });
-                        this.classList.add('active');
-                    });
-                });
-
-                // Optionally, set active based on current URL
-                var currentPath = window.location.pathname;
-                if (currentPath.includes('products')) {
-                    document.getElementById('products').classList.add('active');
-                    document.getElementById('dashboard').classList.remove('active');
-                    document.getElementById('orders').classList.remove('active');
-                } else if (currentPath.includes('dashboard')) {
-                    document.getElementById('products').classList.remove('active');
-                    document.getElementById('dashboard').classList.add('active');
-                    document.getElementById('orders').classList.remove('active');
-                }
-            } else if (currentPath.includes('orders')) {
-                document.getElementById('products').classList.remove('active');
-                document.getElementById('dashboard').classList.remove('active');
-                document.getElementById('orders').classList.add('active');
-            }
-            });
-        </script>

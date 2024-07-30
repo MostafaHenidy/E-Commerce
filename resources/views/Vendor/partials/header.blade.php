@@ -11,15 +11,7 @@
                 <a class="nav-item nav-link" href="{{ route('vendor.index') }}">Profile</a>
                 <a class="nav-item nav-link" href="{{ route('vendor.orders.index') }}">Orders</a>
             </div>
-            <a data-bs-toggle="modal" data-bs-target="#smallModal" class="notificationsIcon">
-                <i class="bi  @if (count(Auth::guard('vendor')->user()->unreadnotifications) > 0) bi-bell-fill @else bi-bell @endif">
-                    <span>
-                        <i class="bi text-danger">{{ count(Auth::guard('vendor')->user()->unreadnotifications) }}
-                        </i>
-                    </span>
-                </i>
-
-            </a>
+            @livewire('notifications-component')
 
             <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                 <div class="avatar avatar-online">
@@ -68,32 +60,4 @@
         </div>
     </div>
 </nav>
-<div class="modal fade" id="smallModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-sm" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel2">Notifications</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body notificationModal">
-                @foreach (Auth::guard('vendor')->user()->notifications as $notification)
-                    <div class="row @if ($notification->read_at == null) bg-light @else bg-transparent @endif">
-                        <div class="col-auto">
-                            <span class="bi bi-cart-check-fill fa-2x"></span>
-                        </div>
-                        <div class="col">
-                            <small><strong>Order Placed</strong></small>
-                            <div class="my-0 text-muted small">{{ $notification->data['message'] }}
-                            </div>
-                            <small
-                                class="badge badge-pill badge-light text-muted">{{ $notification->created_at->diffForHumans() }}</small>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary notificationClear">Clear All</button>
-            </div>
-        </div>
-    </div>
-</div>
+
